@@ -10,4 +10,8 @@ export class UsersService {
   getAllUsers() {
     return this.repository.find();
   }
+
+  getUserByUsername(username: string) {
+    return this.repository.findOneBy({ username });
+  }
 }
