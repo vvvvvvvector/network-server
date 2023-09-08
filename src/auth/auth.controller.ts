@@ -12,14 +12,14 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @UseGuards(LocalAuthGuard)
-  @Post('signin')
   @ApiBody({ type: SignInUserDto })
+  @Post('signin')
   signIn(@Req() req) {
-    return req.user;
+    return this.authService.signIn(req.user);
   }
 
   @Post('signup')
   signUp(@Body() dto: SignUpUserDto) {
-    return 'hello world!!! [signup]';
+    return this.authService.signUp(dto);
   }
 }

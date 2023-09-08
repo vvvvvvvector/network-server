@@ -6,10 +6,11 @@ import { AuthService } from '../auth.service';
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(private authService: AuthService) {
+    // stragegy configuration here in super()
     super();
   }
 
-  // implementation of this method gets and saves user object into @Req() | @Request()
+  // return from the validate method will be saved in the request (req.user) (@Req | @Request) object
   async validate(username: string, password: string) {
     const user = await this.authService.validateUser(username, password);
 
@@ -17,6 +18,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Wrong username or password.');
     }
 
-    return user;
+    return user; // this object will be saved in the @Req() req.user
   }
 }

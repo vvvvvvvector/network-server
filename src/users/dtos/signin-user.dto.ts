@@ -4,6 +4,6 @@ export class SignInUserDto {
   @ApiProperty({ default: 'vector' })
   username: string;
 
-  @ApiProperty({ default: 'helloworld123' })
+  @ApiProperty({ default: 'helloworld' })
   password: string;
 }

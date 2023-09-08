@@ -7,10 +7,6 @@ import { Repository } from 'typeorm';
 export class UsersService {
   constructor(@InjectRepository(User) private repository: Repository<User>) {}
 
-  getAllUsers() {
-    return this.repository.find();
-  }
-
   getUserByUsername(username: string) {
     return this.repository.findOneBy({ username });
   }
