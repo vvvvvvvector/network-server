@@ -11,9 +11,23 @@ import * as bcrypt from 'bcrypt';
 @Injectable()
 export class AuthService {
   constructor(
-    private userService: UsersService,
-    private jwtService: JwtService,
+    private readonly userService: UsersService,
+    private readonly jwtService: JwtService,
   ) {}
+
+  private async isUserAlreadyExists(username: string, email: string) {
+    const userByUsername = await this.userService.findUserByUsername(username);
+
+    if (userByUsername) {
+      throw new ForbiddenException('User with this username already exists.');
+    }
+
+    const userByEmail = await this.userService.findUserByEmail(email);
+
+    if (userByEmail) {
+      throw new ForbiddenException('User with this e-mail already exists.');
+    }
+  }
 
   private async generateHashedPassword(password: string) {
     const salt = await bcrypt.genSalt();
@@ -51,16 +65,18 @@ export class AuthService {
     return null;
   }
 
-  signIn(user: { id: number; username: string }) {
-    return this.generateAccessToken(user);
+  async signIn(payload: { id: number; username: string }) {
+    const user = await this.userService.getMe(payload.id); // To do: change to getIsActivated(id: number)
+
+    if (!user.profile.isActivated) {
+      throw new UnauthorizedException('This profile is not activated.'); // To do: change error message
+    }
+
+    return this.generateAccessToken(payload);
   }
 
   async signUp(dto: SignUpUserDto) {
-    const user = await this.userService.findUserByUsername(dto.username);
-
-    if (user) {
-      throw new ForbiddenException('User with this username already exists.');
-    }
+    await this.isUserAlreadyExists(dto.username, dto.email);
 
     const hash = await this.generateHashedPassword(dto.password);
 
@@ -68,6 +84,8 @@ export class AuthService {
       ...dto,
       password: hash,
     });
+
+    // To do: send email with activation link, then redirect to login page after activation
 
     return this.generateAccessToken({ id, username });
   }

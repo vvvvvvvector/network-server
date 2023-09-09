@@ -13,6 +13,6 @@ export class UsersController {
 
   @Get('me')
   getMe(@Req() req) {
-    return req.user;
+    return this.usersService.getMe(req.user.id);
   }
 }

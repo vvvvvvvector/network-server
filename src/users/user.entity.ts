@@ -1,5 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-
+import { Profile } from 'src/profiles/profile.entity';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToOne,
+  JoinColumn,
+} from 'typeorm';
 @Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn()
@@ -8,15 +14,13 @@ export class User {
   @Column({ unique: true })
   username: string;
 
+  @Column({ unique: true })
+  email: string;
+
   @Column()
   password: string;
 
-  @Column()
-  email: string;
-
-  @Column({ nullable: true })
-  firstName: string;
-
-  @Column({ nullable: true })
-  lastName: string;
+  @OneToOne(() => Profile, { cascade: true }) // with 'cascade: true' i can save this relation with only one save call
+  @JoinColumn({ name: 'profileUuid' }) // add column with foreign keys called 'profileId'
+  profile: Profile;
 }
