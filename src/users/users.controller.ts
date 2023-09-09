@@ -12,7 +12,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get('me')
-  getMe(@Req() req) {
+  async getMe(@Req() req) {
     return this.usersService.getMe(req.user.id);
   }
 }

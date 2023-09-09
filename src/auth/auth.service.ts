@@ -15,6 +15,59 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
+  async validateUser(
+    username: string,
+    password: string,
+  ): Promise<{ id: number; username: string }> {
+    const user = await this.userService.findUserByUsername(username);
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid username or password.');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (isPasswordValid) {
+      const { id } = user;
+
+      return { id, username };
+    }
+
+    return null;
+  }
+
+  async signIn(payload: { id: number; username: string }) {
+    const activated = await this.userService.isProfileActivated(payload.id);
+
+    if (!activated) {
+      throw new UnauthorizedException('This profile is not activated.'); // To do: change error message
+    }
+
+    return this.generateAccessToken(payload);
+  }
+
+  async signUp(dto: SignUpUserDto) {
+    await this.isUserAlreadyExists(dto.username, dto.email);
+
+    const hash = await this.generateHashedPassword(dto.password);
+
+    const { uuid, email } = await this.userService.createUser({
+      ...dto,
+      password: hash,
+    });
+
+    const link = `${process.env.API_URL}/auth/activate/${uuid}`;
+
+    // To Do: send email with the activation link
+
+    return {
+      message: 'Activation link was successfully sent to e-mail.',
+      statusCode: 201,
+      receiver: email,
+      link,
+    };
+  }
+
   private async isUserAlreadyExists(username: string, email: string) {
     const userByUsername = await this.userService.findUserByUsername(username);
 
@@ -41,57 +94,6 @@ export class AuthService {
 
     return {
       access_token,
-    };
-  }
-
-  async validateUser(
-    username: string,
-    password: string,
-  ): Promise<{ id: number; username: string }> {
-    const user = await this.userService.findUserByUsername(username);
-
-    if (!user) {
-      throw new UnauthorizedException('Invalid username or password.');
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (isPasswordValid) {
-      const { id } = user;
-
-      return { id, username };
-    }
-
-    return null;
-  }
-
-  async signIn(payload: { id: number; username: string }) {
-    const user = await this.userService.getMe(payload.id); // To do: change to getIsActivated(id: number)
-
-    if (!user.profile.isActivated) {
-      throw new UnauthorizedException('This profile is not activated.'); // To do: change error message
-    }
-
-    return this.generateAccessToken(payload);
-  }
-
-  async signUp(dto: SignUpUserDto) {
-    await this.isUserAlreadyExists(dto.username, dto.email);
-
-    const hash = await this.generateHashedPassword(dto.password);
-
-    const uuid = await this.userService.createUser({
-      ...dto,
-      password: hash,
-    });
-
-    // To do: send email with activation link
-    const link = `${process.env.API_URL}/auth/activate/${uuid}`;
-
-    return {
-      message: 'Activation link was successfully sent to e-mail.',
-      statusCode: 201,
-      link,
     };
   }
 }

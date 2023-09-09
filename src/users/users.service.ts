@@ -9,13 +9,25 @@ import { Profile } from 'src/profiles/profile.entity';
 export class UsersService {
   constructor(@InjectRepository(User) private repository: Repository<User>) {}
 
-  async getMe(id: number) {
+  private async getUserDataById(id: number) {
     const { password, ...data } = await this.repository.findOne({
       where: { id },
       relations: ['profile'],
     });
 
     return data;
+  }
+
+  async getMe(id: number) {
+    const data = await this.getUserDataById(id);
+
+    return data;
+  }
+
+  async isProfileActivated(id: number) {
+    const { profile } = await this.getUserDataById(id);
+
+    return profile.isActivated;
   }
 
   async createUser(dto: SignUpUserDto) {
@@ -28,7 +40,7 @@ export class UsersService {
 
     await this.repository.save(newUser);
 
-    return newUser.profile.uuid;
+    return { uuid: newUser.profile.uuid, email: newUser.email };
   }
 
   findUserByEmail(email: string) {

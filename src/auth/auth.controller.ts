@@ -26,17 +26,17 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @ApiBody({ type: SignInUserDto })
   @Post('signin')
-  signIn(@Req() req) {
+  async signIn(@Req() req) {
     return this.authService.signIn(req.user);
   }
 
   @Post('signup')
-  signUp(@Body() dto: SignUpUserDto) {
+  async signUp(@Body() dto: SignUpUserDto) {
     return this.authService.signUp(dto);
   }
 
   @Get('activate/:uuid')
-  activateProfile(@Param('uuid') uuid: string) {
+  async activateProfile(@Param('uuid') uuid: string) {
     return this.profileService.activateProfile(uuid);
   }
 }
