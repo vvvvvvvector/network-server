@@ -20,7 +20,7 @@ export class User {
   @Column()
   password: string;
 
-  @OneToOne(() => Profile, { cascade: true }) // with 'cascade: true' i can save this relation with only one save call
+  @OneToOne(() => Profile, { cascade: true, onDelete: 'CASCADE' }) // with 'cascade: true' i can save this relation with only one save call
   @JoinColumn({ name: 'profileUuid' }) // add column with foreign keys called 'profileId'
   profile: Profile;
 }

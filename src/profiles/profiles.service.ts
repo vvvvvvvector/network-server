@@ -11,11 +11,16 @@ export class ProfilesService {
 
   async activateProfile(uuid: string) {
     try {
-      const profile = await this.profileRepository.findOne({ where: { uuid } });
+      await this.profileRepository.update(uuid, {
+        isActivated: true,
+      });
 
-      return profile;
+      return {
+        message: 'Profile was successfully activated.',
+        statusCode: 200,
+      };
     } catch (error) {
-      throw new BadRequestException('Error while activating profile.');
+      throw new BadRequestException('Bad activation link.');
     }
   }
 }

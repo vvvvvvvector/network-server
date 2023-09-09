@@ -18,15 +18,17 @@ export class UsersService {
     return data;
   }
 
-  createUser(dto: SignUpUserDto) {
-    const user = new User();
+  async createUser(dto: SignUpUserDto) {
+    const newUser = new User();
 
-    user.username = dto.username;
-    user.email = dto.email;
-    user.password = dto.password;
-    user.profile = new Profile();
+    newUser.username = dto.username;
+    newUser.email = dto.email;
+    newUser.password = dto.password;
+    newUser.profile = new Profile();
 
-    return this.repository.save(user);
+    await this.repository.save(newUser);
+
+    return newUser.profile.uuid;
   }
 
   findUserByEmail(email: string) {

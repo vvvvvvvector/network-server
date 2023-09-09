@@ -80,13 +80,18 @@ export class AuthService {
 
     const hash = await this.generateHashedPassword(dto.password);
 
-    const { id, username } = await this.userService.createUser({
+    const uuid = await this.userService.createUser({
       ...dto,
       password: hash,
     });
 
-    // To do: send email with activation link, then redirect to login page after activation
+    // To do: send email with activation link
+    const link = `${process.env.API_URL}/auth/activate/${uuid}`;
 
-    return this.generateAccessToken({ id, username });
+    return {
+      message: 'Activation link was successfully sent to e-mail.',
+      statusCode: 201,
+      link,
+    };
   }
 }
