@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './user.entity';
+import { User } from './entities/user.entity';
 import { SignUpUserDto } from './dtos/auth-user.dto';
-import { Profile } from 'src/profiles/profile.entity';
+import { Profile } from 'src/profiles/entities/profile.entity';
 
 @Injectable()
 export class UsersService {
@@ -11,27 +11,27 @@ export class UsersService {
     @InjectRepository(User) private usersRepository: Repository<User>,
   ) {}
 
-  private async getUserDataById(id: number) {
+  private async getUserById(id: number) {
     try {
-      const { password, ...data } = await this.usersRepository.findOneOrFail({
+      const user = await this.usersRepository.findOneOrFail({
         where: { id },
         relations: ['profile'],
       });
 
-      return data;
+      return user;
     } catch (error) {
       throw new BadRequestException('User not found.');
     }
   }
 
-  async getMe(id: number) {
-    const data = await this.getUserDataById(id);
+  async getUserData(id: number) {
+    const { password, ...user } = await this.getUserById(id);
 
-    return data;
+    return user;
   }
 
   async isProfileActivated(id: number) {
-    const { profile } = await this.getUserDataById(id);
+    const { profile } = await this.getUserData(id);
 
     return profile.isActivated;
   }

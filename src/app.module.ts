@@ -11,6 +11,7 @@ import { ProfilesModule } from './profiles/profiles.module';
   imports: [
     AuthModule,
     UsersModule,
+    ProfilesModule,
     ConfigModule.forRoot({
       envFilePath: ['.development.env'],
       cache: true,
@@ -24,7 +25,6 @@ import { ProfilesModule } from './profiles/profiles.module';
       entities: ['**/*.entity.js'],
       synchronize: process.env.ENVIROMENT === 'dev',
     }),
-    ProfilesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

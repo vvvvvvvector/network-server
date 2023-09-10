@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Profile } from './profile.entity';
+import { Profile } from './entities/profile.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -8,6 +8,18 @@ export class ProfilesService {
   constructor(
     @InjectRepository(Profile) private profilesRepository: Repository<Profile>,
   ) {}
+
+  async getProfileByUserId(id: number) {
+    try {
+      const profile = await this.profilesRepository.findOneOrFail({
+        where: { user: { id } },
+      });
+
+      return profile;
+    } catch (error) {
+      throw new BadRequestException('Profile not found.');
+    }
+  }
 
   async getProfileByUuid(uuid: string) {
     try {
