@@ -4,8 +4,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { SignUpUserDto } from 'src/users/dtos/signup-user.dto';
+import { SignUpUserDto } from 'src/users/dtos/auth-user.dto';
 import { UsersService } from 'src/users/users.service';
+import { ProfilesService } from 'src/profiles/profiles.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -13,6 +14,7 @@ export class AuthService {
   constructor(
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly profileService: ProfilesService,
   ) {}
 
   async validateUser(
@@ -22,7 +24,7 @@ export class AuthService {
     const user = await this.userService.findUserByUsername(username);
 
     if (!user) {
-      throw new UnauthorizedException('Invalid username or password.');
+      return null;
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -43,13 +45,13 @@ export class AuthService {
       throw new UnauthorizedException('This profile is not activated.'); // To do: change error message
     }
 
-    return this.generateAccessToken(payload);
+    return this.generateToken(payload);
   }
 
   async signUp(dto: SignUpUserDto) {
     await this.isUserAlreadyExists(dto.username, dto.email);
 
-    const hash = await this.generateHashedPassword(dto.password);
+    const hash = await this.generateHash(dto.password);
 
     const { uuid, email } = await this.userService.createUser({
       ...dto,
@@ -68,6 +70,10 @@ export class AuthService {
     };
   }
 
+  async activateProfile(uuid: string) {
+    return this.profileService.activateProfile(uuid);
+  }
+
   private async isUserAlreadyExists(username: string, email: string) {
     const userByUsername = await this.userService.findUserByUsername(username);
 
@@ -82,18 +88,15 @@ export class AuthService {
     }
   }
 
-  private async generateHashedPassword(password: string) {
+  private async generateHash(password: string) {
     const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    return hashedPassword;
+    const hash = await bcrypt.hash(password, salt);
+    return hash;
   }
 
-  private generateAccessToken(payload: { id: number; username: string }) {
-    const access_token = this.jwtService.sign(payload);
-
+  private generateToken(payload: { id: number; username: string }) {
     return {
-      access_token,
+      token: this.jwtService.sign(payload),
     };
   }
 }

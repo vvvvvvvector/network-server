@@ -1,4 +1,3 @@
-import { Profile } from 'src/profiles/profile.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -6,6 +5,8 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
+import { Profile } from 'src/profiles/profile.entity';
+
 @Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn()

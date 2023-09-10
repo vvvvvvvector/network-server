@@ -1,21 +1,27 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
-import { SignUpUserDto } from './dtos/signup-user.dto';
+import { SignUpUserDto } from './dtos/auth-user.dto';
 import { Profile } from 'src/profiles/profile.entity';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectRepository(User) private repository: Repository<User>) {}
+  constructor(
+    @InjectRepository(User) private usersRepository: Repository<User>,
+  ) {}
 
   private async getUserDataById(id: number) {
-    const { password, ...data } = await this.repository.findOne({
-      where: { id },
-      relations: ['profile'],
-    });
+    try {
+      const { password, ...data } = await this.usersRepository.findOneOrFail({
+        where: { id },
+        relations: ['profile'],
+      });
 
-    return data;
+      return data;
+    } catch (error) {
+      throw new BadRequestException('User not found.');
+    }
   }
 
   async getMe(id: number) {
@@ -31,23 +37,23 @@ export class UsersService {
   }
 
   async createUser(dto: SignUpUserDto) {
-    const newUser = new User();
+    const user = this.usersRepository.create({
+      username: dto.username,
+      email: dto.email,
+      password: dto.password,
+      profile: new Profile(),
+    });
 
-    newUser.username = dto.username;
-    newUser.email = dto.email;
-    newUser.password = dto.password;
-    newUser.profile = new Profile();
-
-    await this.repository.save(newUser);
+    const newUser = await this.usersRepository.save(user);
 
     return { uuid: newUser.profile.uuid, email: newUser.email };
   }
 
   findUserByEmail(email: string) {
-    return this.repository.findOneBy({ email });
+    return this.usersRepository.findOneBy({ email });
   }
 
   findUserByUsername(username: string) {
-    return this.repository.findOneBy({ username });
+    return this.usersRepository.findOneBy({ username });
   }
 }

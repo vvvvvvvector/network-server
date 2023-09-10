@@ -6,21 +6,26 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class ProfilesService {
   constructor(
-    @InjectRepository(Profile) private profileRepository: Repository<Profile>,
+    @InjectRepository(Profile) private profilesRepository: Repository<Profile>,
   ) {}
 
-  async activateProfile(uuid: string) {
+  async getProfileByUuid(uuid: string) {
     try {
-      await this.profileRepository.update(uuid, {
-        isActivated: true,
+      const profile = await this.profilesRepository.findOneOrFail({
+        where: { uuid },
       });
 
-      return {
-        message: 'Profile was successfully activated.',
-        statusCode: 200,
-      };
+      return profile;
     } catch (error) {
-      throw new BadRequestException('Bad activation link.');
+      throw new BadRequestException('Profile not found.');
     }
+  }
+
+  async activateProfile(uuid: string) {
+    const profile = await this.getProfileByUuid(uuid);
+
+    profile.isActivated = true;
+
+    return this.profilesRepository.save(profile);
   }
 }
