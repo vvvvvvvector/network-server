@@ -9,19 +9,15 @@ export class ProfilesService {
     @InjectRepository(Profile) private profilesRepository: Repository<Profile>,
   ) {}
 
-  async getProfileByUserId(id: number) {
-    try {
-      const profile = await this.profilesRepository.findOneOrFail({
-        where: { user: { id } },
-      });
+  async activateProfile(uuid: string) {
+    const profile = await this.getProfileByUuid(uuid);
 
-      return profile;
-    } catch (error) {
-      throw new BadRequestException('Profile not found.');
-    }
+    profile.isActivated = true;
+
+    return this.profilesRepository.save(profile);
   }
 
-  async getProfileByUuid(uuid: string) {
+  private async getProfileByUuid(uuid: string) {
     try {
       const profile = await this.profilesRepository.findOneOrFail({
         where: { uuid },
@@ -33,11 +29,16 @@ export class ProfilesService {
     }
   }
 
-  async activateProfile(uuid: string) {
-    const profile = await this.getProfileByUuid(uuid);
+  private async getProfileByUserId(id: number) {
+    try {
+      const profile = await this.profilesRepository.findOneOrFail({
+        where: { user: { id } },
+        relations: ['user'],
+      });
 
-    profile.isActivated = true;
-
-    return this.profilesRepository.save(profile);
+      return profile;
+    } catch (error) {
+      throw new BadRequestException('Profile not found.');
+    }
   }
 }

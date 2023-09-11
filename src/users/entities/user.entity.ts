@@ -24,7 +24,7 @@ export class User {
   // first arg: target relation type | second arg: inverse relation
   // if relation is not bi-directional, you can't use relations on profilesRepository (relations: ['user']), but you can use relations on usersRepository (relations: ['profile'])
   @OneToOne(() => Profile, (profile) => profile.user, {
-    cascade: true,
+    cascade: ['insert'],
   }) // with 'cascade: true' i can save this relation with only one save call
   @JoinColumn({ name: 'profileUuid' }) // add column with foreign keys called 'profileUuid'
   profile: Profile;

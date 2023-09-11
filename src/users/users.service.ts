@@ -11,7 +11,7 @@ export class UsersService {
     @InjectRepository(User) private usersRepository: Repository<User>,
   ) {}
 
-  private async getUserById(id: number) {
+  async getUserById(id: number) {
     try {
       const user = await this.usersRepository.findOneOrFail({
         where: { id },
@@ -24,7 +24,7 @@ export class UsersService {
     }
   }
 
-  async getUserData(id: number) {
+  private async getUserData(id: number) {
     const { password, ...user } = await this.getUserById(id);
 
     return user;
@@ -49,11 +49,46 @@ export class UsersService {
     return { uuid: newUser.profile.uuid, email: newUser.email };
   }
 
-  findUserByEmail(email: string) {
-    return this.usersRepository.findOneBy({ email });
+  async findUserByEmail(email: string) {
+    return this.usersRepository.findOne({ where: { email } });
   }
 
-  findUserByUsername(username: string) {
+  async findUserByUsername(username: string) {
     return this.usersRepository.findOneBy({ username });
+  }
+
+  async getAllUsers() {
+    const qb = this.usersRepository.createQueryBuilder('user');
+
+    qb.leftJoin('user.profile', 'profile') // user.profile references profile property defined in the User entity
+      .select([
+        'user.username',
+        'user.email',
+        'profile.isActivated',
+        'profile.createdAt',
+      ]);
+
+    return qb.getMany();
+  }
+
+  async getPublicUserData(username: string) {
+    try {
+      const qb = this.usersRepository.createQueryBuilder('user');
+
+      qb.leftJoin('user.profile', 'profile') // user.profile references profile property defined in the User entity
+        .select([
+          'user.username',
+          'user.email',
+          'profile.isActivated',
+          'profile.createdAt',
+        ])
+        .where('user.username = :username', { username });
+
+      const user = await qb.getOneOrFail();
+
+      return user;
+    } catch (error) {
+      throw new BadRequestException('User not found.');
+    }
   }
 }
