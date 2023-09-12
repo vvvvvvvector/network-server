@@ -6,6 +6,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Profile } from 'src/profiles/entities/profile.entity';
+import { Contacts } from './contacts.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -14,9 +15,6 @@ export class User {
 
   @Column({ unique: true })
   username: string;
-
-  @Column({ unique: true })
-  email: string;
 
   @Column()
   password: string;
@@ -28,4 +26,8 @@ export class User {
   }) // with 'cascade: true' i can save this relation with only one save call
   @JoinColumn({ name: 'profileUuid' }) // add column with foreign keys called 'profileUuid'
   profile: Profile;
+
+  @OneToOne(() => Contacts, { cascade: ['insert'] })
+  @JoinColumn({ name: 'contactsId' })
+  contacts: Contacts;
 }
