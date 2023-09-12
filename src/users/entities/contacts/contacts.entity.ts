@@ -7,7 +7,7 @@ export class Contacts {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => Email, { cascade: ['insert'] })
+  @OneToOne(() => Email, { cascade: ['insert', 'update'] })
   @JoinColumn()
   email: Email;
 

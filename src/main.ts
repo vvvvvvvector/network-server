@@ -10,7 +10,7 @@ async function bootstrap() {
 
   // swagger
   const config = new DocumentBuilder()
-    .setTitle('Network API Docs.')
+    .setTitle('Network API')
     .setVersion('0.1')
     .addBearerAuth();
   const document = SwaggerModule.createDocument(app, config.build());

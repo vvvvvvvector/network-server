@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { SignUpUserDto } from './dtos/auth-user.dto';
 import { Profile } from 'src/profiles/entities/profile.entity';
-import { parseUserContacts } from './utils';
+import { getPublicUserDataQueryBuilder, parseUserContacts } from './utils';
 
 @Injectable()
 export class UsersService {
@@ -68,7 +68,9 @@ export class UsersService {
   }
 
   async getAllUsersPublicAvailableData() {
-    const qb = this.publicUserDataQB();
+    const qb = getPublicUserDataQueryBuilder(
+      this.usersRepository.createQueryBuilder('user'),
+    );
 
     const users = await qb.getMany();
 
@@ -77,7 +79,9 @@ export class UsersService {
 
   async getUserPublicAvailableData(username: string) {
     try {
-      const qb = this.publicUserDataQB();
+      const qb = getPublicUserDataQueryBuilder(
+        this.usersRepository.createQueryBuilder('user'),
+      );
 
       qb.where('user.username = :username', { username });
 
@@ -87,23 +91,5 @@ export class UsersService {
     } catch (error) {
       throw new BadRequestException('User not found.');
     }
-  }
-
-  private publicUserDataQB() {
-    const qb = this.usersRepository.createQueryBuilder('user');
-
-    qb.leftJoin('user.profile', 'profile') // user.profile references profile property defined in the User entity
-      .leftJoin('user.contacts', 'contacts') // user.contacts references contacts property defined in the User entity
-      .leftJoin('contacts.email', 'email') // conacts.email references email property defined in the Contacts entity
-      .select([
-        'user.username',
-        'profile.isActivated',
-        'profile.createdAt',
-        'contacts',
-        'email.contact',
-        'email.isPublic',
-      ]);
-
-    return qb;
   }
 }

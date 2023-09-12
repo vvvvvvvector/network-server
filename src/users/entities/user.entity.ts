@@ -27,7 +27,7 @@ export class User {
   @JoinColumn({ name: 'profileUuid' }) // add column with foreign keys called 'profileUuid'
   profile: Profile;
 
-  @OneToOne(() => Contacts, { cascade: ['insert'] })
+  @OneToOne(() => Contacts, { cascade: ['insert', 'update'] })
   @JoinColumn({ name: 'contactsId' })
   contacts: Contacts;
 }
