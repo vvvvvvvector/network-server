@@ -6,12 +6,14 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ProfilesModule } from './profiles/profiles.module';
+import { FriendRequestsModule } from './friend-requests/friend-requests.module';
 
 @Module({
   imports: [
     AuthModule,
     UsersModule,
     ProfilesModule,
+    FriendRequestsModule,
     ConfigModule.forRoot({
       envFilePath: ['.development.env'],
       cache: true,
@@ -25,6 +27,7 @@ import { ProfilesModule } from './profiles/profiles.module';
       entities: ['**/*.entity.js'],
       synchronize: process.env.ENVIROMENT === 'dev',
     }),
+    FriendRequestsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

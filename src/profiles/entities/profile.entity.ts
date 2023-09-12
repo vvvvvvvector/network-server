@@ -6,8 +6,9 @@ import {
   CreateDateColumn,
 } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
+import { Tables } from 'src/utils/constants';
 
-@Entity({ name: 'profiles' })
+@Entity({ name: Tables.PROFILES })
 export class Profile {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;

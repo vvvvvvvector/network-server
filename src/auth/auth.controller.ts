@@ -9,11 +9,11 @@ import {
 } from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { Routes } from 'src/utils/constants';
+import { Routes, SwaggerApiTags } from 'src/utils/constants';
 import { SignInUserDto, SignUpUserDto } from 'src/users/dtos/auth-user.dto';
 import { LocalAuthGuard } from './guards/local.guard';
 
-@ApiTags('auth')
+@ApiTags(SwaggerApiTags.AUTH)
 @Controller(Routes.AUTH)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
