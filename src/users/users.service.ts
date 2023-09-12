@@ -5,8 +5,8 @@ import { User } from './entities/user.entity';
 import { SignUpUserDto } from './dtos/auth-user.dto';
 import { Profile } from 'src/profiles/entities/profile.entity';
 import { Contacts } from './entities/contacts.entity';
-import { EmailContact } from './entities/emailContact.entity';
-import { parseContacts } from './utils';
+import { Email } from './entities/email.entity';
+import { parseUserContacts } from './utils';
 
 @Injectable()
 export class UsersService {
@@ -18,7 +18,7 @@ export class UsersService {
     try {
       const user = await this.usersRepository.findOneOrFail({
         where: { id },
-        relations: ['profile', 'contacts.emailContact'],
+        relations: ['profile', 'contacts.email'],
       });
 
       return user;
@@ -41,9 +41,10 @@ export class UsersService {
 
   async createUser(dto: SignUpUserDto) {
     const contacts = new Contacts();
-    const emailContact = new EmailContact();
-    emailContact.email = dto.email;
-    contacts.emailContact = emailContact;
+    const email = new Email();
+
+    email.contact = dto.email;
+    contacts.email = email;
 
     const user = this.usersRepository.create({
       username: dto.username,
@@ -56,7 +57,7 @@ export class UsersService {
 
     return {
       uuid: newUser.profile.uuid,
-      email: newUser.contacts.emailContact.email,
+      email: newUser.contacts.email.contact,
     };
   }
 
@@ -64,8 +65,8 @@ export class UsersService {
     return this.usersRepository.findOne({
       where: {
         contacts: {
-          emailContact: {
-            email,
+          email: {
+            contact: email,
           },
         },
       },
@@ -81,20 +82,19 @@ export class UsersService {
 
     qb.leftJoin('user.profile', 'profile') // user.profile references profile property defined in the User entity
       .leftJoin('user.contacts', 'contacts')
-      .leftJoin('contacts.emailContact', 'emailContact')
+      .leftJoin('contacts.email', 'email')
       .select([
         'user.username',
         'profile.isActivated',
         'profile.createdAt',
-        'contacts.id',
-        'contacts.emailContact',
-        'emailContact.email',
-        'emailContact.isPublic',
+        'contacts',
+        'email.contact',
+        'email.isPublic',
       ]);
 
     const users = await qb.getMany();
 
-    return users.map((user) => parseContacts(user));
+    return users.map((user) => parseUserContacts(user));
   }
 
   async getPublicUserData(username: string) {
@@ -103,21 +103,20 @@ export class UsersService {
 
       qb.leftJoin('user.profile', 'profile') // user.profile references profile property defined in the User entity
         .leftJoin('user.contacts', 'contacts')
-        .leftJoin('contacts.emailContact', 'emailContact')
+        .leftJoin('contacts.email', 'email')
         .select([
           'user.username',
           'profile.isActivated',
           'profile.createdAt',
-          'contacts.id',
-          'contacts.emailContact',
-          'emailContact.email',
-          'emailContact.isPublic',
+          'contacts',
+          'email.contact',
+          'email.isPublic',
         ])
         .where('user.username = :username', { username });
 
       const user = await qb.getOneOrFail();
 
-      return parseContacts(user);
+      return parseUserContacts(user);
     } catch (error) {
       throw new BadRequestException('User not found.');
     }

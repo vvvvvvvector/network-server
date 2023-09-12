@@ -1,13 +1,13 @@
 import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Contacts } from './contacts.entity';
 
-@Entity({ name: 'emailContacts' })
-export class EmailContact {
+@Entity({ name: 'email' })
+export class Email {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ unique: true })
-  email: string;
+  contact: string;
 
   @Column({ default: true })
   isPublic: boolean;

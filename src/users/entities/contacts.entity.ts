@@ -1,5 +1,5 @@
 import { Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { EmailContact } from './emailContact.entity';
+import { Email } from './email.entity';
 import { User } from './user.entity';
 
 @Entity({ name: 'contacts' })
@@ -7,9 +7,9 @@ export class Contacts {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => EmailContact, { cascade: ['insert'] })
+  @OneToOne(() => Email, { cascade: ['insert'] })
   @JoinColumn()
-  emailContact: EmailContact;
+  email: Email;
 
   @OneToOne(() => User)
   user: User;
