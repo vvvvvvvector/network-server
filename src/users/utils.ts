@@ -3,20 +3,18 @@ import { User } from './entities/user.entity';
 export const parseUserContacts = (user: User) => {
   const { contacts, ...profileAndUsername } = user;
 
-  const { email } = contacts;
-
-  return email.isPublic
+  return contacts.email.isPublic
     ? {
         ...profileAndUsername,
         contacts: {
-          email,
+          email: contacts.email,
         },
       }
     : {
         ...profileAndUsername,
         contacts: {
           email: {
-            isPublic: email.isPublic,
+            isPublic: contacts.email.isPublic,
           },
         },
       };

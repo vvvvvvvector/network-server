@@ -17,12 +17,12 @@ export class UsersController {
   }
 
   @Get(':username')
-  async getPublicUserData(@Param('username') username: string) {
-    return this.usersService.getPublicUserData(username);
+  async getUserPublicAbailableDataData(@Param('username') username: string) {
+    return this.usersService.getUserPublicAvailableData(username);
   }
 
   @Get()
-  async getAllUsers() {
-    return this.usersService.getAllUsers();
+  async getAllUsersPublicAvailableData() {
+    return this.usersService.getAllUsersPublicAvailableData();
   }
 }

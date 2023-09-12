@@ -6,7 +6,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Profile } from 'src/profiles/entities/profile.entity';
-import { Contacts } from './contacts.entity';
+import { Contacts } from './contacts/contacts.entity';
 
 @Entity({ name: 'users' })
 export class User {
