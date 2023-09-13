@@ -63,6 +63,20 @@ export class UsersService {
     });
   }
 
+  async findUserIdByUsername(username: string) {
+    try {
+      const { id } = await this.usersRepository.findOneOrFail({
+        where: {
+          username,
+        },
+      });
+
+      return id;
+    } catch (error) {
+      throw new BadRequestException('User not found.');
+    }
+  }
+
   async findUserByUsername(username: string) {
     return this.usersRepository.findOneBy({ username });
   }

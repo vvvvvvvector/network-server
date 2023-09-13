@@ -11,16 +11,16 @@ import { EmailExistsException } from './exceptions/email-exists';
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UsersService,
+    private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly profileService: ProfilesService,
+    private readonly profilesService: ProfilesService,
   ) {}
 
   async validateUser(
     username: string,
     password: string,
   ): Promise<{ id: number; username: string }> {
-    const user = await this.userService.findUserByUsername(username);
+    const user = await this.usersService.findUserByUsername(username);
 
     if (!user) {
       return null;
@@ -38,7 +38,7 @@ export class AuthService {
   }
 
   async signIn(payload: { id: number; username: string }) {
-    const activated = await this.userService.isProfileActivated(payload.id);
+    const activated = await this.usersService.isProfileActivated(payload.id);
 
     if (!activated) {
       throw new ProfileNotActivatedException();
@@ -52,7 +52,7 @@ export class AuthService {
 
     const hash = await this.generateHash(dto.password);
 
-    const { uuid, email } = await this.userService.createUser({
+    const { uuid, email } = await this.usersService.createUser({
       ...dto,
       password: hash,
     });
@@ -70,15 +70,15 @@ export class AuthService {
   }
 
   async activateProfile(uuid: string) {
-    return this.profileService.activateProfile(uuid);
+    return this.profilesService.activateProfile(uuid);
   }
 
   private async isUserAlreadyExists(username: string, email: string) {
-    const userByUsername = await this.userService.findUserByUsername(username);
+    const userByUsername = await this.usersService.findUserByUsername(username);
 
     if (userByUsername) throw new UsernameExistsException();
 
-    const userByEmail = await this.userService.findUserByEmail(email);
+    const userByEmail = await this.usersService.findUserByEmail(email);
 
     if (userByEmail) throw new EmailExistsException();
   }
