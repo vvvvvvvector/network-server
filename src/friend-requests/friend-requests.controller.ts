@@ -3,7 +3,9 @@ import { FriendRequestsService } from './friend-requests.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Routes, SwaggerApiTags } from 'src/utils/constants';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
-import { CreateRequsetDto } from './dtos/create-request.dto';
+import { CreateFriendRequestDto } from './dtos/create-friend-request.dto';
+import { AcceptFriendRequestDto } from './dtos/accept-friend-request.dto';
+import { RejectFriendRequestDto } from './dtos/reject-friend-request.dto';
 
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
@@ -13,7 +15,7 @@ export class FriendRequestsController {
   constructor(private readonly friendRequestsService: FriendRequestsService) {}
 
   @Post('create')
-  async create(@Req() req, @Body() dto: CreateRequsetDto) {
+  async create(@Req() req, @Body() dto: CreateFriendRequestDto) {
     return this.friendRequestsService.create(req.user.id, dto.username);
   }
 
@@ -35,13 +37,18 @@ export class FriendRequestsController {
     return this.friendRequestsService.getSentFriendRequests(req.user.id);
   }
 
+  @Get('rejected')
+  async getRejectedFriendRequests(@Req() req) {
+    return this.friendRequestsService.getRejectedFriendRequests(req.user.id);
+  }
+
   @Post('accept')
-  accept(@Req() req, @Body() dto: any) {
+  accept(@Req() req, @Body() dto: AcceptFriendRequestDto) {
     return this.friendRequestsService.accept();
   }
 
   @Post('reject')
-  reject(@Req() req, @Body() dto: any) {
+  reject(@Req() req, @Body() dto: RejectFriendRequestDto) {
     return this.friendRequestsService.reject();
   }
 }

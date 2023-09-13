@@ -93,7 +93,9 @@ export class FriendRequestsService {
       })
       .andWhere('friendRequest.status = :status', { status: 'pending' });
 
-    return qb.getMany();
+    const incomingFriendRequests = await qb.getMany();
+
+    return incomingFriendRequests;
   }
 
   async getSentFriendRequests(signedInUserId: number) {
@@ -108,7 +110,26 @@ export class FriendRequestsService {
         { firstStatus: 'pending', secondStatus: 'rejected' },
       );
 
-    return qb.getMany();
+    const sentFriendRequests = await qb.getMany();
+
+    return sentFriendRequests;
+  }
+
+  // which user has rejected
+  async getRejectedFriendRequests(signedInUserId: number) {
+    const qb =
+      this.friendRequestsRepository.createQueryBuilder('friendRequest');
+
+    qb.leftJoin('friendRequest.sender', 'sender')
+      .select(['friendRequest.createdAt', 'sender.username'])
+      .where('friendRequest.receiverId = :signedInUserId', {
+        signedInUserId,
+      })
+      .andWhere('friendRequest.status = :status', { status: 'rejected' });
+
+    const rejectedFriendRequests = await qb.getMany();
+
+    return rejectedFriendRequests;
   }
 
   accept() {
