@@ -13,22 +13,22 @@ export class FriendRequestsController {
   constructor(private readonly friendRequestsService: FriendRequestsService) {}
 
   @Post('create')
-  create(@Req() req, @Body() dto: CreateRequsetDto) {
+  async create(@Req() req, @Body() dto: CreateRequsetDto) {
     return this.friendRequestsService.create(req.user.id, dto.username);
   }
 
   @Get('accepted')
-  getAcceptedFriendRequests(@Req() req) {
+  async getAcceptedFriendRequests(@Req() req) {
     return this.friendRequestsService.getAcceptedFriendRequests(req.user.id);
   }
 
-  @Get('received')
-  getReceivedFriendRequests(@Req() req) {
-    return this.friendRequestsService.getReceivedFriendRequests(req.user.id);
+  @Get('incoming')
+  async getIncomingFriendRequests(@Req() req) {
+    return this.friendRequestsService.getIncomingFriendRequests(req.user.id);
   }
 
   @Get('sent')
-  getSentFriendRequests(@Req() req) {
+  async getSentFriendRequests(@Req() req) {
     return this.friendRequestsService.getSentFriendRequests(req.user.id);
   }
 

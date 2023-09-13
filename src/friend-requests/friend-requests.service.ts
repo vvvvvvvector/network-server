@@ -40,19 +40,25 @@ export class FriendRequestsService {
     return newFriendRequest;
   }
 
-  getAcceptedFriendRequests(signedInUserId: number) {
+  async getAcceptedFriendRequests(signedInUserId: number) {
     return ['accepted friend1', 'accepted friend2', 'accepted friend3'];
   }
 
-  getReceivedFriendRequests(signedInUserId: number) {
-    return [
-      'receiver friend1 request',
-      'receiver friend2 request',
-      'receiver friend3 request',
-    ];
+  async getIncomingFriendRequests(signedInUserId: number) {
+    const qb =
+      this.friendRequestsRepository.createQueryBuilder('friendRequest');
+
+    qb.leftJoin('friendRequest.sender', 'sender')
+      .select(['friendRequest.createdAt', 'sender.username'])
+      .where('friendRequest.receiverId = :signedInUserId', {
+        signedInUserId,
+      })
+      .andWhere('friendRequest.status = :status', { status: 'pending' });
+
+    return qb.getMany();
   }
 
-  getSentFriendRequests(signedInUserId: number) {
+  async getSentFriendRequests(signedInUserId: number) {
     const qb =
       this.friendRequestsRepository.createQueryBuilder('friendRequest');
 
