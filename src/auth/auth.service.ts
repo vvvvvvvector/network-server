@@ -1,13 +1,12 @@
-import {
-  ForbiddenException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { SignUpUserDto } from 'src/users/dtos/auth-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { ProfilesService } from 'src/profiles/profiles.service';
 import * as bcrypt from 'bcrypt';
+import { ProfileNotActivatedException } from './exceptions/profile-not-activated';
+import { UsernameExistsException } from './exceptions/username-exists';
+import { EmailExistsException } from './exceptions/email-exists';
 
 @Injectable()
 export class AuthService {
@@ -42,7 +41,7 @@ export class AuthService {
     const activated = await this.userService.isProfileActivated(payload.id);
 
     if (!activated) {
-      throw new UnauthorizedException('This profile is not activated.'); // To do: change error message
+      throw new ProfileNotActivatedException();
     }
 
     return this.generateToken(payload);
@@ -77,15 +76,11 @@ export class AuthService {
   private async isUserAlreadyExists(username: string, email: string) {
     const userByUsername = await this.userService.findUserByUsername(username);
 
-    if (userByUsername) {
-      throw new ForbiddenException('User with this username already exists.');
-    }
+    if (userByUsername) throw new UsernameExistsException();
 
     const userByEmail = await this.userService.findUserByEmail(email);
 
-    if (userByEmail) {
-      throw new ForbiddenException('User with this e-mail already exists.');
-    }
+    if (userByEmail) throw new EmailExistsException();
   }
 
   private async generateHash(password: string) {
