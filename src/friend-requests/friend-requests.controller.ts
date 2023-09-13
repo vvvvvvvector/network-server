@@ -19,7 +19,10 @@ export class FriendRequestsController {
 
   @Get('accepted')
   async getAcceptedFriendRequests(@Req() req) {
-    return this.friendRequestsService.getAcceptedFriendRequests(req.user.id);
+    return this.friendRequestsService.getAcceptedFriendRequests(
+      req.user.id,
+      req.user.username,
+    );
   }
 
   @Get('incoming')
@@ -32,13 +35,13 @@ export class FriendRequestsController {
     return this.friendRequestsService.getSentFriendRequests(req.user.id);
   }
 
-  @Get('accept')
-  accept() {
+  @Post('accept')
+  accept(@Req() req, @Body() dto: any) {
     return this.friendRequestsService.accept();
   }
 
-  @Get('reject')
-  reject() {
+  @Post('reject')
+  reject(@Req() req, @Body() dto: any) {
     return this.friendRequestsService.reject();
   }
 }
