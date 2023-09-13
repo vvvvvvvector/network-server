@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FriendRequest } from './entities/friend-request.entity';
 import { Repository } from 'typeorm';
+import { FriendRequest } from './entities/friend-request.entity';
 import { UsersService } from 'src/users/users.service';
 import { MyselfFriendRequestException } from './exceptions/myself-friend-request';
 import { RequestHasAlreadyBeenCreatedException } from './exceptions/request-has-already-been-created';
+import { NotReceiverRejectException } from './exceptions/not-receiver-reject';
+import { NotReceiverAcceptException } from './exceptions/not-receiver-accept';
 
 @Injectable()
 export class FriendRequestsService {
@@ -132,12 +134,60 @@ export class FriendRequestsService {
     return rejectedFriendRequests;
   }
 
-  accept() {
-    return 'accepted';
+  async accept(signedInUserId: number, requestSenderUsername: string) {
+    const senderId = await this.usersService.findUserIdByUsername(
+      requestSenderUsername,
+    );
+
+    try {
+      const friendRequest = await this.friendRequestsRepository.findOne({
+        where: {
+          sender: {
+            id: senderId,
+          },
+          receiver: {
+            id: signedInUserId,
+          },
+        },
+      });
+
+      friendRequest.status = 'accepted';
+
+      const acceptedFriendRequest =
+        await this.friendRequestsRepository.save(friendRequest);
+
+      return acceptedFriendRequest;
+    } catch (error) {
+      throw new NotReceiverAcceptException();
+    }
   }
 
-  reject() {
-    return 'rejected';
+  async reject(signedInUserId: number, requestSenderUsername: string) {
+    const senderId = await this.usersService.findUserIdByUsername(
+      requestSenderUsername,
+    );
+
+    try {
+      const friendRequest = await this.friendRequestsRepository.findOneOrFail({
+        where: {
+          sender: {
+            id: senderId,
+          },
+          receiver: {
+            id: signedInUserId,
+          },
+        },
+      });
+
+      friendRequest.status = 'rejected';
+
+      const rejectedFriendRequest =
+        await this.friendRequestsRepository.save(friendRequest);
+
+      return rejectedFriendRequest;
+    } catch (error) {
+      throw new NotReceiverRejectException();
+    }
   }
 
   private async alreadyFriends(senderId: number, receiverId: number) {

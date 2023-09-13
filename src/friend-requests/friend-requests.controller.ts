@@ -1,4 +1,12 @@
-import { Controller, Get, UseGuards, Post, Req, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  UseGuards,
+  Post,
+  Req,
+  Body,
+  Patch,
+} from '@nestjs/common';
 import { FriendRequestsService } from './friend-requests.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Routes, SwaggerApiTags } from 'src/utils/constants';
@@ -42,13 +50,13 @@ export class FriendRequestsController {
     return this.friendRequestsService.getRejectedFriendRequests(req.user.id);
   }
 
-  @Post('accept')
-  accept(@Req() req, @Body() dto: AcceptFriendRequestDto) {
-    return this.friendRequestsService.accept();
+  @Patch('accept')
+  async accept(@Req() req, @Body() dto: AcceptFriendRequestDto) {
+    return this.friendRequestsService.accept(req.user.id, dto.username);
   }
 
-  @Post('reject')
-  reject(@Req() req, @Body() dto: RejectFriendRequestDto) {
-    return this.friendRequestsService.reject();
+  @Patch('reject')
+  async reject(@Req() req, @Body() dto: RejectFriendRequestDto) {
+    return this.friendRequestsService.reject(req.user.id, dto.username);
   }
 }
