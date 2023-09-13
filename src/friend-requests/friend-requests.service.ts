@@ -53,11 +53,18 @@ export class FriendRequestsService {
   }
 
   getSentFriendRequests(signedInUserId: number) {
-    return [
-      'send friend1 request',
-      'send friend2 request',
-      'send friend3 request',
-    ];
+    const qb =
+      this.friendRequestsRepository.createQueryBuilder('friendRequest');
+
+    qb.leftJoin('friendRequest.receiver', 'receiver')
+      .select(['friendRequest.createdAt', 'receiver.username'])
+      .where('friendRequest.senderId = :signedInUserId', { signedInUserId })
+      .andWhere(
+        'friendRequest.status = :firstStatus OR friendRequest.status = :secondStatus',
+        { firstStatus: 'pending', secondStatus: 'rejected' },
+      );
+
+    return qb.getMany();
   }
 
   accept() {
