@@ -2,9 +2,15 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: false });
+
+  app.enableCors({
+    credentials: true,
+    origin: true,
+  });
 
   app.useGlobalPipes(new ValidationPipe()); // i can validate dtos because of this (in gerneral classes i guess) with class-validator
 
@@ -20,6 +26,8 @@ async function bootstrap() {
     },
   });
 
-  await app.listen(3000);
+  const port = +app.get(ConfigService).get('APP_PORT') || 5173;
+
+  await app.listen(port);
 }
 bootstrap();
