@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
-import { SignUpUserDto } from './dtos/auth-user.dto';
+import { SignUpUserDto } from './dtos/auth.dto';
 import { Profile } from 'src/profiles/entities/profile.entity';
 import { getPublicUserDataQueryBuilder, parseUserContacts } from './utils';
 

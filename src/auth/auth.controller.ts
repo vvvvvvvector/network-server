@@ -10,7 +10,7 @@ import {
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { Routes, SwaggerApiTags } from 'src/utils/constants';
-import { SignInUserDto, SignUpUserDto } from 'src/users/dtos/auth-user.dto';
+import { SignInUserDto, SignUpUserDto } from 'src/users/dtos/auth.dto';
 import { LocalAuthGuard } from './guards/local.guard';
 
 @ApiTags(SwaggerApiTags.AUTH)
