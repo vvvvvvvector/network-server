@@ -4,20 +4,25 @@ import { UsersService } from './users.service';
 import { SwaggerApiTags, Routes } from 'src/utils/constants';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 @ApiTags(SwaggerApiTags.USERS)
 @Controller(Routes.USERS)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   @Get('me')
   async getMe(@Req() req) {
     return this.usersService.getUserById(req.user.id);
   }
 
+  @Get('usernames')
+  async getAllUsersUsernames(@Req() req) {
+    return this.usersService.getAllUsersUsernames(req.user.username);
+  }
+
   @Get(':username')
-  async getUserPublicAbailableDataData(@Param('username') username: string) {
+  async getUserPublicAvailableData(@Param('username') username: string) {
     return this.usersService.getUserPublicAvailableData(username);
   }
 

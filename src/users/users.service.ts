@@ -81,6 +81,14 @@ export class UsersService {
     return this.usersRepository.findOneBy({ username });
   }
 
+  async getAllUsersUsernames(signedInUserUsername: string) {
+    const qb = this.usersRepository.createQueryBuilder('user');
+
+    const users = await qb.select(['user.username']).getMany();
+
+    return users.filter((user) => user.username !== signedInUserUsername);
+  }
+
   async getAllUsersPublicAvailableData() {
     const qb = getPublicUserDataQueryBuilder(
       this.usersRepository.createQueryBuilder('user'),
