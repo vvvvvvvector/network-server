@@ -107,10 +107,9 @@ export class FriendRequestsService {
     qb.leftJoin('friendRequest.receiver', 'receiver')
       .select(['friendRequest.createdAt', 'receiver.username'])
       .where('friendRequest.senderId = :signedInUserId', { signedInUserId })
-      .andWhere(
-        'friendRequest.status = :firstStatus OR friendRequest.status = :secondStatus',
-        { firstStatus: 'pending', secondStatus: 'rejected' },
-      );
+      .andWhere('friendRequest.status IN (:...statuses)', {
+        statuses: ['pending', 'rejected'],
+      });
 
     const sentFriendRequests = await qb.getMany();
 
