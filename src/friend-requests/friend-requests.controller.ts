@@ -28,26 +28,34 @@ export class FriendRequestsController {
   }
 
   @Get('accepted')
-  async getAcceptedFriendRequests(@Req() req) {
-    return this.friendRequestsService.getAcceptedFriendRequests(
+  async acceptedFriendRequests(@Req() req) {
+    return this.friendRequestsService.acceptedFriendRequests(
       req.user.id,
       req.user.username,
     );
   }
 
   @Get('incoming')
-  async getIncomingFriendRequests(@Req() req) {
-    return this.friendRequestsService.getIncomingFriendRequests(req.user.id);
+  async incomingFriendRequests(@Req() req) {
+    return this.friendRequestsService.incomingFriendRequests(req.user.id);
   }
 
   @Get('sent')
-  async getSentFriendRequests(@Req() req) {
-    return this.friendRequestsService.getSentFriendRequests(req.user.id);
+  async sentFriendRequests(@Req() req) {
+    return this.friendRequestsService.sentFriendRequests(req.user.id);
   }
 
   @Get('rejected')
-  async getRejectedFriendRequests(@Req() req) {
-    return this.friendRequestsService.getRejectedFriendRequests(req.user.id);
+  async rejectedFriendRequests(@Req() req) {
+    return this.friendRequestsService.rejectedFriendRequests(req.user.id);
+  }
+
+  @Get('find')
+  async networkUsersUsernames(@Req() req) {
+    return this.friendRequestsService.networkUsersUsernames(
+      req.user.id,
+      req.user.username,
+    );
   }
 
   @Patch('accept')

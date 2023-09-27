@@ -16,6 +16,33 @@ export class FriendRequestsService {
     private readonly usersService: UsersService,
   ) {}
 
+  async networkUsersUsernames(
+    signedInUserId: number,
+    signedInUserUsername: string,
+  ) {
+    const users =
+      await this.usersService.getAllUsersUsernames(signedInUserUsername);
+
+    const modifiedUsers = await Promise.all(
+      users.map(async (user) => {
+        const id = await this.usersService.findUserIdByUsername(user.username);
+
+        const requestStatus = await this.alreadyFriends(signedInUserId, id);
+
+        let status = "doesn't exist";
+
+        if (requestStatus) status = requestStatus;
+
+        return {
+          username: user.username,
+          requestStatus: status,
+        };
+      }),
+    );
+
+    return modifiedUsers;
+  }
+
   async create(senderId: number, receiverUsername: string) {
     const receiverId =
       await this.usersService.findUserIdByUsername(receiverUsername);
@@ -43,7 +70,7 @@ export class FriendRequestsService {
   }
 
   // de facto getMyFriendsUsernames
-  async getAcceptedFriendRequests(
+  async acceptedFriendRequests(
     signedInUserId: number,
     signedInUserUsername: string,
   ) {
@@ -84,7 +111,7 @@ export class FriendRequestsService {
     });
   }
 
-  async getIncomingFriendRequests(signedInUserId: number) {
+  async incomingFriendRequests(signedInUserId: number) {
     const qb =
       this.friendRequestsRepository.createQueryBuilder('friendRequest');
 
@@ -100,7 +127,7 @@ export class FriendRequestsService {
     return incomingFriendRequests;
   }
 
-  async getSentFriendRequests(signedInUserId: number) {
+  async sentFriendRequests(signedInUserId: number) {
     const qb =
       this.friendRequestsRepository.createQueryBuilder('friendRequest');
 
@@ -117,7 +144,7 @@ export class FriendRequestsService {
   }
 
   // which user has rejected
-  async getRejectedFriendRequests(signedInUserId: number) {
+  async rejectedFriendRequests(signedInUserId: number) {
     const qb =
       this.friendRequestsRepository.createQueryBuilder('friendRequest');
 
@@ -211,6 +238,6 @@ export class FriendRequestsService {
       ],
     });
 
-    return friendRequest;
+    return friendRequest?.status;
   }
 }
