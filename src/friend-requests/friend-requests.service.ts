@@ -16,18 +16,17 @@ export class FriendRequestsService {
     private readonly usersService: UsersService,
   ) {}
 
-  async networkUsersUsernames(
-    signedInUserId: number,
-    signedInUserUsername: string,
-  ) {
-    const users =
-      await this.usersService.getAllUsersUsernames(signedInUserUsername);
+  async networkUsersUsernames(signedInUserId: number) {
+    const users = (
+      await this.usersService.getAllUsersUsernamesWithIds()
+    ).filter((user) => user.id !== signedInUserId);
 
     const modifiedUsers = await Promise.all(
       users.map(async (user) => {
-        const id = await this.usersService.findUserIdByUsername(user.username);
-
-        const requestStatus = await this.alreadyFriends(signedInUserId, id);
+        const requestStatus = await this.alreadyFriends(
+          signedInUserId,
+          user.id,
+        );
 
         let status = "doesn't exist";
 

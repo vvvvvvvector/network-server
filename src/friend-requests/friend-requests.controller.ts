@@ -52,10 +52,7 @@ export class FriendRequestsController {
 
   @Get('find')
   async networkUsersUsernames(@Req() req) {
-    return this.friendRequestsService.networkUsersUsernames(
-      req.user.id,
-      req.user.username,
-    );
+    return this.friendRequestsService.networkUsersUsernames(req.user.id);
   }
 
   @Patch('accept')

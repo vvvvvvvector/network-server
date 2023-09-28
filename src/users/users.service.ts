@@ -12,6 +12,18 @@ export class UsersService {
     @InjectRepository(User) private usersRepository: Repository<User>,
   ) {}
 
+  async getMyUsernameById(id: number) {
+    try {
+      const { username } = await this.usersRepository.findOneOrFail({
+        where: { id },
+      });
+
+      return username;
+    } catch (error) {
+      throw new BadRequestException('User not found.');
+    }
+  }
+
   async getUserById(id: number) {
     try {
       const { password, ...user } = await this.usersRepository.findOneOrFail({
@@ -81,12 +93,12 @@ export class UsersService {
     return this.usersRepository.findOneBy({ username });
   }
 
-  async getAllUsersUsernames(signedInUserUsername: string) {
+  async getAllUsersUsernamesWithIds() {
     const qb = this.usersRepository.createQueryBuilder('user');
 
-    const users = await qb.select(['user.username']).getMany();
+    const users = await qb.select(['user.id', 'user.username']).getMany();
 
-    return users.filter((user) => user.username !== signedInUserUsername);
+    return users;
   }
 
   async getAllUsersPublicAvailableData() {
