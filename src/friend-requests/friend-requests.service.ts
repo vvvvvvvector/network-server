@@ -21,25 +21,32 @@ export class FriendRequestsService {
       await this.usersService.getAllUsersUsernamesWithIds()
     ).filter((user) => user.id !== signedInUserId);
 
-    const modifiedUsers = await Promise.all(
-      users.map(async (user) => {
-        const requestStatus = await this.alreadyFriends(
-          signedInUserId,
-          user.id,
-        );
+    const qb = this.friendRequestsRepository.createQueryBuilder('request');
 
-        let status = "doesn't exist";
+    qb.leftJoin('request.sender', 'sender')
+      .leftJoin('request.receiver', 'receiver')
+      .select(['request.status', 'sender.id', 'receiver.id']);
 
-        if (requestStatus) status = requestStatus;
+    const requests = await qb.getMany();
 
-        return {
-          username: user.username,
-          requestStatus: status,
-        };
-      }),
-    );
+    return users.map((user) => {
+      let requestStatus = "doesn't exist";
 
-    return modifiedUsers;
+      for (let i = 0; i < requests.length; i++) {
+        if (
+          (requests[i].receiver.id === user.id &&
+            requests[i].sender.id === signedInUserId) ||
+          (requests[i].receiver.id === signedInUserId &&
+            requests[i].sender.id === user.id)
+        )
+          requestStatus = requests[i].status;
+      }
+
+      return {
+        username: user.username,
+        requestStatus,
+      };
+    });
   }
 
   async create(senderId: number, receiverUsername: string) {
