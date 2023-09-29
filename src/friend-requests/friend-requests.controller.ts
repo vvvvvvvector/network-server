@@ -64,4 +64,9 @@ export class FriendRequestsController {
   async reject(@Req() req, @Body() dto: RejectFriendRequestDto) {
     return this.friendRequestsService.reject(req.user.id, dto.username);
   }
+
+  @Patch('unfriend')
+  async unfriend(@Req() req, @Body() dto: AcceptFriendRequestDto) {
+    return this.friendRequestsService.unfriend(req.user.id, dto.username);
+  }
 }

@@ -49,6 +49,39 @@ export class FriendRequestsService {
     });
   }
 
+  async unfriend(senderId: number, receiverUsername: string) {
+    const receiverId =
+      await this.usersService.findUserIdByUsername(receiverUsername);
+
+    const friendRequest = await this.friendRequestsRepository.findOne({
+      relations: ['receiver', 'sender'],
+      where: [
+        {
+          sender: {
+            id: senderId,
+          },
+          receiver: {
+            id: receiverId,
+          },
+        },
+        {
+          sender: {
+            id: receiverId,
+          },
+          receiver: {
+            id: senderId,
+          },
+        },
+      ],
+    });
+
+    friendRequest.sender.id = receiverId;
+    friendRequest.receiver.id = senderId;
+    friendRequest.status = 'rejected';
+
+    return this.friendRequestsRepository.save(friendRequest);
+  }
+
   async create(senderId: number, receiverUsername: string) {
     const receiverId =
       await this.usersService.findUserIdByUsername(receiverUsername);
