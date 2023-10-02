@@ -31,7 +31,7 @@ export class FriendRequestsService {
     const requests = await qb.getMany();
 
     return users.map((user) => {
-      let requestStatus = "doesn't exist";
+      let requestStatus = 'lack';
 
       for (let i = 0; i < requests.length; i++) {
         if (
@@ -81,6 +81,24 @@ export class FriendRequestsService {
     friendRequest.status = 'rejected';
 
     return this.friendRequestsRepository.save(friendRequest);
+  }
+
+  async cancel(signedInUserUsername: string, receiverUsername: string) {
+    const friendRequest = await this.friendRequestsRepository.findOne({
+      relations: ['receiver', 'sender'],
+      where: [
+        {
+          sender: {
+            username: signedInUserUsername,
+          },
+          receiver: {
+            username: receiverUsername,
+          },
+        },
+      ],
+    });
+
+    return this.friendRequestsRepository.remove(friendRequest);
   }
 
   async create(senderId: number, receiverUsername: string) {
@@ -200,6 +218,7 @@ export class FriendRequestsService {
     return rejectedFriendRequests;
   }
 
+  // ref: use usernames, not ids
   async accept(signedInUserId: number, requestSenderUsername: string) {
     const senderId = await this.usersService.findUserIdByUsername(
       requestSenderUsername,
@@ -228,6 +247,7 @@ export class FriendRequestsService {
     }
   }
 
+  // ref: use usernames, not ids
   async reject(signedInUserId: number, requestSenderUsername: string) {
     const senderId = await this.usersService.findUserIdByUsername(
       requestSenderUsername,

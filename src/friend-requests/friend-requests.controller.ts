@@ -6,6 +6,7 @@ import {
   Req,
   Body,
   Patch,
+  Delete,
 } from '@nestjs/common';
 import { FriendRequestsService } from './friend-requests.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -68,5 +69,10 @@ export class FriendRequestsController {
   @Patch('unfriend')
   async unfriend(@Req() req, @Body() dto: AcceptFriendRequestDto) {
     return this.friendRequestsService.unfriend(req.user.id, dto.username);
+  }
+
+  @Delete('cancel')
+  async cancel(@Req() req, @Body() dto: AcceptFriendRequestDto) {
+    return this.friendRequestsService.cancel(req.user.username, dto.username);
   }
 }
