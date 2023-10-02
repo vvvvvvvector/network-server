@@ -1,14 +1,18 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
+import { FriendRequestsModule } from 'src/friend-requests/friend-requests.module';
 
 // exports TypeOrmModule if i want to use repository outside of the module
 // then if i import UsersModule in another module, i can use @InjectRepository(User)
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User])],
+  imports: [
+    forwardRef(() => FriendRequestsModule),
+    TypeOrmModule.forFeature([User]),
+  ],
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService],

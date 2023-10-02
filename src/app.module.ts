@@ -27,7 +27,6 @@ import { FriendRequestsModule } from './friend-requests/friend-requests.module';
       entities: ['**/*.entity.js'],
       synchronize: process.env.ENVIROMENT === 'dev',
     }),
-    FriendRequestsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

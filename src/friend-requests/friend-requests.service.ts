@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FriendRequest } from './entities/friend-request.entity';
@@ -13,6 +13,7 @@ export class FriendRequestsService {
   constructor(
     @InjectRepository(FriendRequest)
     private friendRequestsRepository: Repository<FriendRequest>,
+    @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
   ) {}
 
@@ -255,7 +256,7 @@ export class FriendRequestsService {
     }
   }
 
-  private async alreadyFriends(senderId: number, receiverId: number) {
+  async alreadyFriends(senderId: number, receiverId: number) {
     const friendRequest = await this.friendRequestsRepository.findOne({
       where: [
         {

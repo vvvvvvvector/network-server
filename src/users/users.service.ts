@@ -1,15 +1,24 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { SignUpUserDto } from './dtos/auth.dto';
 import { Profile } from 'src/profiles/entities/profile.entity';
 import { getPublicUserDataQueryBuilder, parseUserContacts } from './utils';
+import { FriendRequestsService } from 'src/friend-requests/friend-requests.service';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User) private usersRepository: Repository<User>,
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+    @Inject(forwardRef(() => FriendRequestsService))
+    private readonly friendRequestsService: FriendRequestsService,
   ) {}
 
   async getMyUsernameById(id: number) {
@@ -111,7 +120,7 @@ export class UsersService {
     return users.map((user) => parseUserContacts(user));
   }
 
-  async getUserPublicAvailableData(username: string) {
+  async getUserPublicAvailableData(signedInUserId: number, username: string) {
     try {
       const qb = getPublicUserDataQueryBuilder(
         this.usersRepository.createQueryBuilder('user'),
@@ -121,7 +130,12 @@ export class UsersService {
 
       const user = await qb.getOneOrFail();
 
-      return parseUserContacts(user);
+      const status = await this.friendRequestsService.alreadyFriends(
+        signedInUserId,
+        user.id,
+      );
+
+      return { isFriend: status === 'accepted', ...parseUserContacts(user) };
     } catch (error) {
       throw new BadRequestException('User not found.');
     }

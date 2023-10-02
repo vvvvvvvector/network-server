@@ -22,8 +22,11 @@ export class UsersController {
   }
 
   @Get(':username')
-  async getUserPublicAvailableData(@Param('username') username: string) {
-    return this.usersService.getUserPublicAvailableData(username);
+  async getUserPublicAvailableData(
+    @Req() req,
+    @Param('username') username: string,
+  ) {
+    return this.usersService.getUserPublicAvailableData(req.user.id, username);
   }
 
   @Get()

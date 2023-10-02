@@ -26,6 +26,7 @@ export const getPublicUserDataQueryBuilder = (qb: SelectQueryBuilder<User>) => {
     .leftJoin('user.contacts', 'contacts') // user.contacts references contacts property defined in the User entity
     .leftJoin('contacts.email', 'email') // contacts.email references email property defined in the Contacts entity
     .select([
+      'user.id',
       'user.username',
       'profile.isActivated',
       'profile.createdAt',
