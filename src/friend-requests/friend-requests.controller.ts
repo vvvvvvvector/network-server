@@ -58,12 +58,12 @@ export class FriendRequestsController {
 
   @Patch('accept')
   async accept(@Req() req, @Body() dto: AcceptFriendRequestDto) {
-    return this.friendRequestsService.accept(req.user.id, dto.username);
+    return this.friendRequestsService.accept(req.user.username, dto.username);
   }
 
   @Patch('reject')
   async reject(@Req() req, @Body() dto: RejectFriendRequestDto) {
-    return this.friendRequestsService.reject(req.user.id, dto.username);
+    return this.friendRequestsService.reject(req.user.username, dto.username);
   }
 
   @Patch('unfriend')

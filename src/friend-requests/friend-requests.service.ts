@@ -218,20 +218,15 @@ export class FriendRequestsService {
     return rejectedFriendRequests;
   }
 
-  // ref: use usernames, not ids
-  async accept(signedInUserId: number, requestSenderUsername: string) {
-    const senderId = await this.usersService.findUserIdByUsername(
-      requestSenderUsername,
-    );
-
+  async accept(signedInUserUsername: string, requestSenderUsername: string) {
     try {
       const friendRequest = await this.friendRequestsRepository.findOne({
         where: {
           sender: {
-            id: senderId,
+            username: requestSenderUsername,
           },
           receiver: {
-            id: signedInUserId,
+            username: signedInUserUsername,
           },
         },
       });
@@ -247,20 +242,15 @@ export class FriendRequestsService {
     }
   }
 
-  // ref: use usernames, not ids
-  async reject(signedInUserId: number, requestSenderUsername: string) {
-    const senderId = await this.usersService.findUserIdByUsername(
-      requestSenderUsername,
-    );
-
+  async reject(signedInUserUsername: string, requestSenderUsername: string) {
     try {
       const friendRequest = await this.friendRequestsRepository.findOneOrFail({
         where: {
           sender: {
-            id: senderId,
+            username: requestSenderUsername,
           },
           receiver: {
-            id: signedInUserId,
+            username: signedInUserUsername,
           },
         },
       });
