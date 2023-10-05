@@ -26,7 +26,7 @@ export class FriendRequestsService {
 
     qb.leftJoin('request.sender', 'sender')
       .leftJoin('request.receiver', 'receiver')
-      .select(['request.status', 'sender.id', 'receiver.id']);
+      .select(['request.status', 'sender', 'receiver']);
 
     const requests = await qb.getMany();
 
@@ -45,9 +45,166 @@ export class FriendRequestsService {
 
       return {
         username: user.username,
+        profile: {
+          ...user.profile,
+        },
         requestStatus,
       };
     });
+  }
+
+  // de facto getMyFriendsUsernames
+  async acceptedFriendRequests(
+    signedInUserId: number,
+    signedInUserUsername: string,
+  ) {
+    const qb =
+      this.friendRequestsRepository.createQueryBuilder('friendRequest');
+
+    qb.leftJoin('friendRequest.sender', 'sender')
+      .leftJoin('friendRequest.receiver', 'receiver')
+      .leftJoin('receiver.profile', 'receiverProfile')
+      .leftJoin('sender.profile', 'senderProfile')
+      .select([
+        'friendRequest.createdAt',
+        'sender.username',
+        'receiver.username',
+        'receiverProfile.avatar',
+        'senderProfile.avatar',
+      ])
+      .where(
+        'friendRequest.senderId = :signedInUserId AND friendRequest.status = :status',
+        {
+          signedInUserId,
+          status: 'accepted',
+        },
+      )
+      .orWhere(
+        'friendRequest.receiverId = :signedInUserId AND friendRequest.status = :status',
+        {
+          signedInUserId,
+          status: 'accepted',
+        },
+      );
+
+    const acceptedFriendRequests = await qb.getMany();
+
+    return acceptedFriendRequests.map((request) => {
+      return {
+        username:
+          request.sender.username === signedInUserUsername
+            ? request.receiver.username
+            : request.sender.username,
+        profile:
+          request.sender.username === signedInUserUsername
+            ? request.receiver.profile
+            : request.sender.profile,
+      };
+    });
+  }
+
+  async incomingFriendRequests(signedInUserId: number) {
+    const qb =
+      this.friendRequestsRepository.createQueryBuilder('friendRequest');
+
+    qb.leftJoin('friendRequest.sender', 'sender')
+      .leftJoin('sender.profile', 'profile')
+      .select(['friendRequest.createdAt', 'sender.username', 'profile.avatar'])
+      .where('friendRequest.receiverId = :signedInUserId', {
+        signedInUserId,
+      })
+      .andWhere('friendRequest.status = :status', { status: 'pending' });
+
+    const incomingFriendRequests = await qb.getMany();
+
+    return incomingFriendRequests;
+  }
+
+  async sentFriendRequests(signedInUserId: number) {
+    const qb =
+      this.friendRequestsRepository.createQueryBuilder('friendRequest');
+
+    qb.leftJoin('friendRequest.receiver', 'receiver')
+      .leftJoin('receiver.profile', 'profile')
+      .select([
+        'friendRequest.createdAt',
+        'receiver.username',
+        'profile.avatar',
+      ])
+      .where('friendRequest.senderId = :signedInUserId', { signedInUserId })
+      .andWhere('friendRequest.status IN (:...statuses)', {
+        statuses: ['pending', 'rejected'],
+      });
+
+    const sentFriendRequests = await qb.getMany();
+
+    return sentFriendRequests;
+  }
+
+  // which user has rejected
+  async rejectedFriendRequests(signedInUserId: number) {
+    const qb =
+      this.friendRequestsRepository.createQueryBuilder('friendRequest');
+
+    qb.leftJoin('friendRequest.sender', 'sender')
+      .leftJoin('sender.profile', 'profile')
+      .select(['friendRequest.createdAt', 'sender.username', 'profile.avatar'])
+      .where('friendRequest.receiverId = :signedInUserId', {
+        signedInUserId,
+      })
+      .andWhere('friendRequest.status = :status', { status: 'rejected' });
+
+    const rejectedFriendRequests = await qb.getMany();
+
+    return rejectedFriendRequests;
+  }
+
+  async accept(signedInUserUsername: string, requestSenderUsername: string) {
+    try {
+      const friendRequest = await this.friendRequestsRepository.findOne({
+        where: {
+          sender: {
+            username: requestSenderUsername,
+          },
+          receiver: {
+            username: signedInUserUsername,
+          },
+        },
+      });
+
+      friendRequest.status = 'accepted';
+
+      const acceptedFriendRequest =
+        await this.friendRequestsRepository.save(friendRequest);
+
+      return acceptedFriendRequest;
+    } catch (error) {
+      throw new NotReceiverAcceptException();
+    }
+  }
+
+  async reject(signedInUserUsername: string, requestSenderUsername: string) {
+    try {
+      const friendRequest = await this.friendRequestsRepository.findOneOrFail({
+        where: {
+          sender: {
+            username: requestSenderUsername,
+          },
+          receiver: {
+            username: signedInUserUsername,
+          },
+        },
+      });
+
+      friendRequest.status = 'rejected';
+
+      const rejectedFriendRequest =
+        await this.friendRequestsRepository.save(friendRequest);
+
+      return rejectedFriendRequest;
+    } catch (error) {
+      throw new NotReceiverRejectException();
+    }
   }
 
   async unfriend(senderId: number, receiverUsername: string) {
@@ -125,145 +282,6 @@ export class FriendRequestsService {
       await this.friendRequestsRepository.save(friendRequest);
 
     return newFriendRequest;
-  }
-
-  // de facto getMyFriendsUsernames
-  async acceptedFriendRequests(
-    signedInUserId: number,
-    signedInUserUsername: string,
-  ) {
-    const qb =
-      this.friendRequestsRepository.createQueryBuilder('friendRequest');
-
-    qb.leftJoin('friendRequest.sender', 'sender')
-      .leftJoin('friendRequest.receiver', 'receiver')
-      .select([
-        'friendRequest.createdAt',
-        'sender.username',
-        'receiver.username',
-      ])
-      .where(
-        'friendRequest.senderId = :signedInUserId AND friendRequest.status = :status',
-        {
-          signedInUserId,
-          status: 'accepted',
-        },
-      )
-      .orWhere(
-        'friendRequest.receiverId = :signedInUserId AND friendRequest.status = :status',
-        {
-          signedInUserId,
-          status: 'accepted',
-        },
-      );
-
-    const acceptedFriendRequests = await qb.getMany();
-
-    return acceptedFriendRequests.map((request) => {
-      return {
-        username:
-          request.sender.username === signedInUserUsername
-            ? request.receiver.username
-            : request.sender.username,
-      };
-    });
-  }
-
-  async incomingFriendRequests(signedInUserId: number) {
-    const qb =
-      this.friendRequestsRepository.createQueryBuilder('friendRequest');
-
-    qb.leftJoin('friendRequest.sender', 'sender')
-      .select(['friendRequest.createdAt', 'sender.username'])
-      .where('friendRequest.receiverId = :signedInUserId', {
-        signedInUserId,
-      })
-      .andWhere('friendRequest.status = :status', { status: 'pending' });
-
-    const incomingFriendRequests = await qb.getMany();
-
-    return incomingFriendRequests;
-  }
-
-  async sentFriendRequests(signedInUserId: number) {
-    const qb =
-      this.friendRequestsRepository.createQueryBuilder('friendRequest');
-
-    qb.leftJoin('friendRequest.receiver', 'receiver')
-      .select(['friendRequest.createdAt', 'receiver.username'])
-      .where('friendRequest.senderId = :signedInUserId', { signedInUserId })
-      .andWhere('friendRequest.status IN (:...statuses)', {
-        statuses: ['pending', 'rejected'],
-      });
-
-    const sentFriendRequests = await qb.getMany();
-
-    return sentFriendRequests;
-  }
-
-  // which user has rejected
-  async rejectedFriendRequests(signedInUserId: number) {
-    const qb =
-      this.friendRequestsRepository.createQueryBuilder('friendRequest');
-
-    qb.leftJoin('friendRequest.sender', 'sender')
-      .select(['friendRequest.createdAt', 'sender.username'])
-      .where('friendRequest.receiverId = :signedInUserId', {
-        signedInUserId,
-      })
-      .andWhere('friendRequest.status = :status', { status: 'rejected' });
-
-    const rejectedFriendRequests = await qb.getMany();
-
-    return rejectedFriendRequests;
-  }
-
-  async accept(signedInUserUsername: string, requestSenderUsername: string) {
-    try {
-      const friendRequest = await this.friendRequestsRepository.findOne({
-        where: {
-          sender: {
-            username: requestSenderUsername,
-          },
-          receiver: {
-            username: signedInUserUsername,
-          },
-        },
-      });
-
-      friendRequest.status = 'accepted';
-
-      const acceptedFriendRequest =
-        await this.friendRequestsRepository.save(friendRequest);
-
-      return acceptedFriendRequest;
-    } catch (error) {
-      throw new NotReceiverAcceptException();
-    }
-  }
-
-  async reject(signedInUserUsername: string, requestSenderUsername: string) {
-    try {
-      const friendRequest = await this.friendRequestsRepository.findOneOrFail({
-        where: {
-          sender: {
-            username: requestSenderUsername,
-          },
-          receiver: {
-            username: signedInUserUsername,
-          },
-        },
-      });
-
-      friendRequest.status = 'rejected';
-
-      const rejectedFriendRequest =
-        await this.friendRequestsRepository.save(friendRequest);
-
-      return rejectedFriendRequest;
-    } catch (error) {
-      throw new NotReceiverRejectException();
-    }
   }
 
   async alreadyFriends(senderId: number, receiverId: number) {

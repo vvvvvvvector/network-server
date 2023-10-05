@@ -105,7 +105,10 @@ export class UsersService {
   async getAllUsersUsernamesWithIds() {
     const qb = this.usersRepository.createQueryBuilder('user');
 
-    const users = await qb.select(['user.id', 'user.username']).getMany();
+    const users = await qb
+      .leftJoin('user.profile', 'profile')
+      .select(['user.id', 'user.username', 'profile.avatar'])
+      .getMany();
 
     return users;
   }

@@ -30,6 +30,7 @@ export const getPublicUserDataQueryBuilder = (qb: SelectQueryBuilder<User>) => {
       'user.username',
       'profile.isActivated',
       'profile.createdAt',
+      'profile.avatar',
       'contacts',
       'email.contact',
       'email.isPublic',

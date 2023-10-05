@@ -16,6 +16,9 @@ export class Profile {
   @Column({ default: false })
   isActivated: boolean;
 
+  @Column({ nullable: true })
+  avatar?: string;
+
   @CreateDateColumn()
   createdAt: Date;
 
