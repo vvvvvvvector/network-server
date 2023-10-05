@@ -16,6 +16,11 @@ export class UsersController {
     return this.usersService.getUserById(req.user.id);
   }
 
+  @Get('me/username-avatar')
+  async getMyAvatarAndUsername(@Req() req) {
+    return this.usersService.getMyAvatarAndUsername(req.user.id);
+  }
+
   @Get('me/username')
   async getMyUsernameById(@Req() req) {
     return this.usersService.getMyUsernameById(req.user.id);

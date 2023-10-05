@@ -46,6 +46,22 @@ export class UsersService {
     }
   }
 
+  async getMyAvatarAndUsername(id: number) {
+    try {
+      const { password, ...user } = await this.usersRepository.findOneOrFail({
+        where: { id },
+        relations: ['profile'],
+      });
+
+      return {
+        username: user.username,
+        avatar: user.profile.avatar,
+      };
+    } catch (error) {
+      throw new BadRequestException('User not found.');
+    }
+  }
+
   async isProfileActivated(id: number) {
     const { profile } = await this.getUserById(id);
 
