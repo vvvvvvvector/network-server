@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Post,
   Req,
   UploadedFile,
@@ -40,5 +41,10 @@ export class ProfilesController {
   )
   async uploadAvatar(@Req() req, @UploadedFile() file: Express.Multer.File) {
     return this.profilesService.saveAvatar(req.user.uuid, file.filename);
+  }
+
+  @Delete('/remove-avatar')
+  async removeAvatar(@Req() req) {
+    return this.profilesService.removeAvatar(req.user.uuid);
   }
 }

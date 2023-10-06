@@ -1,13 +1,41 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
+
 import { InjectRepository } from '@nestjs/typeorm';
-import { Profile } from './entities/profile.entity';
 import { Repository } from 'typeorm';
+
+import { Profile } from './entities/profile.entity';
+
+import { unlink } from 'fs';
+import { join } from 'path';
 
 @Injectable()
 export class ProfilesService {
   constructor(
     @InjectRepository(Profile) private profilesRepository: Repository<Profile>,
   ) {}
+
+  async removeAvatar(uuid: string) {
+    const profile = await this.getProfileByUuid(uuid);
+
+    unlink(
+      join(__dirname, `../../uploads/avatars/${profile.avatar}`),
+      (err) => {
+        if (err) {
+          console.log(err);
+
+          throw new ForbiddenException('Error while removing avatar.');
+        }
+      },
+    );
+
+    profile.avatar = null;
+
+    return this.profilesRepository.save(profile);
+  }
 
   async saveAvatar(uuid: string, filename: string) {
     const profile = await this.getProfileByUuid(uuid);
