@@ -115,7 +115,12 @@ export class UsersService {
   }
 
   async findUserByUsername(username: string) {
-    return this.usersRepository.findOneBy({ username });
+    const user = await this.usersRepository.findOne({
+      where: { username },
+      relations: ['profile'],
+    });
+
+    return user;
   }
 
   async getAllUsersUsernamesWithIds() {

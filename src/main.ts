@@ -3,9 +3,13 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
+import * as express from 'express';
+import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: false });
+
+  app.use('/uploads', express.static(join(__dirname, '..', 'uploads'))); // https://loclahost:5173/uploads/avatars/* -> will show the image because of this
 
   app.enableCors({
     credentials: true,

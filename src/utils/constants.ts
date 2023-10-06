@@ -2,6 +2,7 @@ export enum Routes {
   AUTH = 'auth',
   USERS = 'users',
   FRIEND_REQUESTS = 'friend-requests',
+  PROFILES = 'profiles',
 }
 
 export enum SwaggerApiTags {
@@ -9,6 +10,7 @@ export enum SwaggerApiTags {
   AUTH = 'auth',
   USERS = 'users',
   FRIEND_REQUESTS = 'friend-requests',
+  PROFILES = 'profiles',
 }
 
 export enum Tables {

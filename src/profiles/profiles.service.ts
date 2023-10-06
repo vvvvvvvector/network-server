@@ -9,6 +9,14 @@ export class ProfilesService {
     @InjectRepository(Profile) private profilesRepository: Repository<Profile>,
   ) {}
 
+  async saveAvatar(uuid: string, filename: string) {
+    const profile = await this.getProfileByUuid(uuid);
+
+    profile.avatar = filename;
+
+    return this.profilesRepository.save(profile);
+  }
+
   async activateProfile(uuid: string) {
     const profile = await this.getProfileByUuid(uuid);
 
