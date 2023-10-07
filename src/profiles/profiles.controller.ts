@@ -43,6 +43,28 @@ export class ProfilesController {
     return this.profilesService.saveAvatar(req.user.uuid, file.filename);
   }
 
+  @Post('/update-avatar')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: avatarStorage,
+    }),
+  )
+  async updateAvatar(@Req() req, @UploadedFile() file: Express.Multer.File) {
+    return this.profilesService.updateAvatar(req.user.uuid, file.filename);
+  }
+
   @Delete('/remove-avatar')
   async removeAvatar(@Req() req) {
     return this.profilesService.removeAvatar(req.user.uuid);

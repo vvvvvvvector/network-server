@@ -45,6 +45,25 @@ export class ProfilesService {
     return this.profilesRepository.save(profile);
   }
 
+  async updateAvatar(uuid: string, filename: string) {
+    const profile = await this.getProfileByUuid(uuid);
+
+    unlink(
+      join(__dirname, `../../uploads/avatars/${profile.avatar}`),
+      (err) => {
+        if (err) {
+          console.log(err);
+
+          throw new ForbiddenException('Error while updating avatar.');
+        }
+      },
+    );
+
+    profile.avatar = filename;
+
+    return this.profilesRepository.save(profile);
+  }
+
   async activateProfile(uuid: string) {
     const profile = await this.getProfileByUuid(uuid);
 
