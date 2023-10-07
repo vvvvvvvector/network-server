@@ -6,7 +6,7 @@ const id = () =>
     .map(() => Math.round(Math.random() * 16).toString(16))
     .join('');
 
-const normalizeFilename = (req, file, callback) => {
+const normalizedFilename = (req, file, callback) => {
   const fileExtensionName = file.originalname.split('.')[1];
 
   callback(null, `${id()}.${fileExtensionName}`);
@@ -14,5 +14,5 @@ const normalizeFilename = (req, file, callback) => {
 
 export const avatarStorage = diskStorage({
   destination: './uploads/avatars',
-  filename: normalizeFilename,
+  filename: normalizedFilename,
 });
