@@ -1,6 +1,7 @@
 import {
   Controller,
   Delete,
+  Patch,
   Post,
   Req,
   UploadedFile,
@@ -43,7 +44,7 @@ export class ProfilesController {
     return this.profilesService.saveAvatar(req.user.uuid, file.filename);
   }
 
-  @Post('/update-avatar')
+  @Patch('/update-avatar')
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
