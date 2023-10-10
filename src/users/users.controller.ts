@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { SwaggerApiTags, Routes } from 'src/utils/constants';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
@@ -11,6 +11,9 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @ApiOperation({
+    summary: 'Get ALL data of a signed in user (except of hashed password)',
+  })
   @Get('me')
   async getMe(@Req() req) {
     return this.usersService.getUserById(req.user.id);
@@ -32,10 +35,5 @@ export class UsersController {
     @Param('username') username: string,
   ) {
     return this.usersService.getUserPublicAvailableData(req.user.id, username);
-  }
-
-  @Get()
-  async getAllUsersPublicAvailableData() {
-    return this.usersService.getAllUsersPublicAvailableData();
   }
 }

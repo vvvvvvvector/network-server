@@ -3,6 +3,7 @@ import {
   Delete,
   Patch,
   Post,
+  Put,
   Req,
   UploadedFile,
   UseGuards,
@@ -30,7 +31,7 @@ export class ProfilesController {
     return this.profilesService.saveAvatar(req.user.uuid, file.filename);
   }
 
-  @Patch('/update-avatar')
+  @Put('/update-avatar')
   @UploadAvatar()
   async updateAvatar(
     @Req() req,

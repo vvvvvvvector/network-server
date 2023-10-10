@@ -134,16 +134,6 @@ export class UsersService {
     return users;
   }
 
-  async getAllUsersPublicAvailableData() {
-    const qb = getPublicUserDataQueryBuilder(
-      this.usersRepository.createQueryBuilder('user'),
-    );
-
-    const users = await qb.getMany();
-
-    return users.map((user) => parseUserContacts(user));
-  }
-
   async getUserPublicAvailableData(signedInUserId: number, username: string) {
     try {
       const qb = getPublicUserDataQueryBuilder(
