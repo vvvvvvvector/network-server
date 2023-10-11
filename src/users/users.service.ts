@@ -9,7 +9,11 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { SignUpUserDto } from './dtos/auth.dto';
 import { Profile } from 'src/profiles/entities/profile.entity';
-import { getPublicUserDataQueryBuilder, parseUserContacts } from './utils';
+import {
+  getPublicUserDataQueryBuilder,
+  getSignedInUserDataQueryBuilder,
+  parseUserContacts,
+} from './utils';
 import { FriendRequestsService } from 'src/friend-requests/friend-requests.service';
 
 @Injectable()
@@ -35,12 +39,20 @@ export class UsersService {
 
   async getUserById(id: number) {
     try {
-      const { password, ...user } = await this.usersRepository.findOneOrFail({
-        where: { id },
-        relations: ['profile', 'contacts.email'],
-      });
+      const qb = getSignedInUserDataQueryBuilder(
+        this.usersRepository.createQueryBuilder('user'),
+      );
 
-      return user;
+      const user = await qb.where('user.id = :id', { id }).getOneOrFail();
+
+      const { contacts, ...rest } = user;
+
+      return {
+        ...rest,
+        contacts: {
+          email: contacts.email,
+        },
+      };
     } catch (error) {
       throw new BadRequestException('User not found.');
     }
