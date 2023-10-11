@@ -9,12 +9,12 @@ import {
 } from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { Routes, SwaggerApiTags } from 'src/utils/constants';
+import { ROUTES, SWAGGER_API_TAGS } from 'src/utils/constants';
 import { SignInUserDto, SignUpUserDto } from 'src/users/dtos/auth.dto';
 import { LocalAuthGuard } from './guards/local.guard';
 
-@ApiTags(SwaggerApiTags.AUTH)
-@Controller(Routes.AUTH)
+@ApiTags(SWAGGER_API_TAGS.AUTH)
+@Controller(ROUTES.AUTH)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

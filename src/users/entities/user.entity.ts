@@ -7,9 +7,9 @@ import {
 } from 'typeorm';
 import { Profile } from 'src/profiles/entities/profile.entity';
 import { Contacts } from './contacts/contacts.entity';
-import { Tables } from 'src/utils/constants';
+import { TABLES } from 'src/utils/constants';
 
-@Entity({ name: Tables.USERS })
+@Entity({ name: TABLES.USERS })
 export class User {
   @PrimaryGeneratedColumn()
   id: number;

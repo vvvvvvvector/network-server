@@ -10,14 +10,14 @@ import {
 } from '@nestjs/common';
 import { FriendRequestsService } from './friend-requests.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Routes, SwaggerApiTags } from 'src/utils/constants';
+import { ROUTES, SWAGGER_API_TAGS } from 'src/utils/constants';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { FriendRequestDto } from './dtos/friend-request.dto';
 
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-@ApiTags(SwaggerApiTags.FRIEND_REQUESTS)
-@Controller(Routes.FRIEND_REQUESTS)
+@ApiTags(SWAGGER_API_TAGS.FRIEND_REQUESTS)
+@Controller(ROUTES.FRIEND_REQUESTS)
 export class FriendRequestsController {
   constructor(private readonly friendRequestsService: FriendRequestsService) {}
 

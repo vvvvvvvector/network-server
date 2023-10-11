@@ -10,14 +10,14 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
-import { Routes, SwaggerApiTags } from 'src/utils/constants';
+import { ROUTES, SWAGGER_API_TAGS } from 'src/utils/constants';
 import { ProfilesService } from './profiles.service';
 import { UploadAvatar } from './decorators/upload-avatar.decorator';
 
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-@ApiTags(SwaggerApiTags.PROFILES)
-@Controller(Routes.PROFILES)
+@ApiTags(SWAGGER_API_TAGS.PROFILES)
+@Controller(ROUTES.PROFILES)
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
 

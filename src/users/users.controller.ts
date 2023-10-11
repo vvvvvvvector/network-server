@@ -1,13 +1,13 @@
 import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
-import { SwaggerApiTags, Routes } from 'src/utils/constants';
+import { SWAGGER_API_TAGS, ROUTES } from 'src/utils/constants';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-@ApiTags(SwaggerApiTags.USERS)
-@Controller(Routes.USERS)
+@ApiTags(SWAGGER_API_TAGS.USERS)
+@Controller(ROUTES.USERS)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 

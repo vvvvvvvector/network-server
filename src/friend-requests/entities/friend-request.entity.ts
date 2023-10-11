@@ -8,12 +8,12 @@ import {
 } from 'typeorm';
 import { RequestStatus } from '../utils';
 import { User } from 'src/users/entities/user.entity';
-import { Tables } from 'src/utils/constants';
+import { TABLES } from 'src/utils/constants';
 
 // createForeignKeyConstraints: false -> allows insertions of same foreign keys in one column ->
 // -> because one user can send multiple friend requests
 
-@Entity({ name: Tables.FRIEND_REQUESTS })
+@Entity({ name: TABLES.FRIEND_REQUESTS })
 export class FriendRequest {
   @PrimaryGeneratedColumn()
   id: number;

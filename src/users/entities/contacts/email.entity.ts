@@ -1,8 +1,8 @@
 import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Contacts } from './contacts.entity';
-import { Tables } from 'src/utils/constants';
+import { TABLES } from 'src/utils/constants';
 
-@Entity({ name: Tables.EMAILS })
+@Entity({ name: TABLES.EMAILS })
 export class Email {
   @PrimaryGeneratedColumn()
   id: number;

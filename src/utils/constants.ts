@@ -1,22 +1,22 @@
-export enum Routes {
-  AUTH = 'auth',
-  USERS = 'users',
-  FRIEND_REQUESTS = 'friend-requests',
-  PROFILES = 'profiles',
-}
+export const ROUTES = {
+  AUTH: 'auth',
+  USERS: 'users',
+  FRIEND_REQUESTS: 'friend-requests',
+  PROFILES: 'profiles',
+} as const;
 
-export enum SwaggerApiTags {
-  ROOT = 'root',
-  AUTH = 'auth',
-  USERS = 'users',
-  FRIEND_REQUESTS = 'friend-requests',
-  PROFILES = 'profiles',
-}
+export const SWAGGER_API_TAGS = {
+  ROOT: 'root',
+  AUTH: 'auth',
+  USERS: 'users',
+  FRIEND_REQUESTS: 'friend-requests',
+  PROFILES: 'profiles',
+} as const;
 
-export enum Tables {
-  USERS = 'users',
-  EMAILS = 'emails',
-  CONTACTS = 'contacts',
-  PROFILES = 'profiles',
-  FRIEND_REQUESTS = 'friend-requests',
-}
+export const TABLES = {
+  USERS: 'users',
+  EMAILS: 'emails',
+  CONTACTS: 'contacts',
+  PROFILES: 'profiles',
+  FRIEND_REQUESTS: 'friend-requests',
+} as const;
