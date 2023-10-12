@@ -4,15 +4,17 @@ import { User } from './entities/user.entity';
 export const parseUserContacts = (user: User) => {
   const { contacts, ...profileAndUsername } = user;
 
+  const { id, ...rest } = profileAndUsername;
+
   return contacts.email.isPublic
     ? {
-        ...profileAndUsername,
+        ...rest,
         contacts: {
           email: contacts.email,
         },
       }
     : {
-        ...profileAndUsername,
+        ...rest,
         contacts: {
           email: {
             isPublic: contacts.email.isPublic,
@@ -46,6 +48,7 @@ export const getPublicUserDataQueryBuilder = (qb: SelectQueryBuilder<User>) => {
     .leftJoin('user.contacts', 'contacts') // user.contacts references contacts property defined in the User entity
     .leftJoin('contacts.email', 'email') // contacts.email references email property defined in the Contacts entity
     .select([
+      'user.id',
       'user.username',
       'profile.isActivated',
       'profile.createdAt',
