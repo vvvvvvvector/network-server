@@ -17,7 +17,7 @@ export class FriendRequestsService {
     private readonly usersService: UsersService,
   ) {}
 
-  async networkUsersUsernames(signedInUserId: number) {
+  async networkUsersUsernames(signedInUserId: number, pageFromQuery: number) {
     const users = (
       await this.usersService.getAllUsersUsernamesWithIds()
     ).filter((user) => user.id !== signedInUserId);
@@ -30,27 +30,34 @@ export class FriendRequestsService {
 
     const requests = await qb.getMany();
 
-    return users.map((user) => {
-      let requestStatus = 'lack';
+    const page = pageFromQuery || 1;
+    const usersPerPage = 3;
 
-      for (let i = 0; i < requests.length; i++) {
-        if (
-          (requests[i].receiver.id === user.id &&
-            requests[i].sender.id === signedInUserId) ||
-          (requests[i].receiver.id === signedInUserId &&
-            requests[i].sender.id === user.id)
-        )
-          requestStatus = requests[i].status;
-      }
+    const totalPages = Math.ceil(users.length / usersPerPage);
 
-      return {
-        username: user.username,
-        profile: {
-          ...user.profile,
-        },
-        requestStatus,
-      };
-    });
+    return users
+      .slice((page - 1) * usersPerPage, usersPerPage * page)
+      .map((user) => {
+        let requestStatus = 'lack';
+
+        for (let i = 0; i < requests.length; i++) {
+          if (
+            (requests[i].receiver.id === user.id &&
+              requests[i].sender.id === signedInUserId) ||
+            (requests[i].receiver.id === signedInUserId &&
+              requests[i].sender.id === user.id)
+          )
+            requestStatus = requests[i].status;
+        }
+
+        return {
+          username: user.username,
+          profile: {
+            ...user.profile,
+          },
+          requestStatus,
+        };
+      });
   }
 
   // de facto getMyFriendsUsernames

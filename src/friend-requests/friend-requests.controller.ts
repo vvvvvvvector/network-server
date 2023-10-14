@@ -7,6 +7,7 @@ import {
   Body,
   Patch,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { FriendRequestsService } from './friend-requests.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -76,8 +77,8 @@ export class FriendRequestsController {
       'Returns list of users of entire network with information about request status',
   })
   @Get('find')
-  async networkUsersUsernames(@Req() req) {
-    return this.friendRequestsService.networkUsersUsernames(req.user.id);
+  async networkUsersUsernames(@Req() req, @Query('page') page: number) {
+    return this.friendRequestsService.networkUsersUsernames(req.user.id, page);
   }
 
   @ApiOperation({
