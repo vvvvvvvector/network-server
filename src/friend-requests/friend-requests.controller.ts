@@ -77,8 +77,19 @@ export class FriendRequestsController {
       'Returns list of users of entire network with information about request status',
   })
   @Get('find')
-  async networkUsersUsernames(@Req() req, @Query('page') page: number) {
-    return this.friendRequestsService.networkUsersUsernames(req.user.id, page);
+  async networkUsersUsernames(
+    @Req() req,
+    @Query()
+    query: {
+      page: string;
+      username: string;
+    },
+  ) {
+    return this.friendRequestsService.networkUsersUsernames(
+      req.user.id,
+      query.page,
+      query.username,
+    );
   }
 
   @ApiOperation({

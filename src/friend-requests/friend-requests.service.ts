@@ -17,10 +17,22 @@ export class FriendRequestsService {
     private readonly usersService: UsersService,
   ) {}
 
-  async networkUsersUsernames(signedInUserId: number, pageFromQuery: number) {
-    const users = (
-      await this.usersService.getAllUsersUsernamesWithIds()
-    ).filter((user) => user.id !== signedInUserId);
+  async networkUsersUsernames(
+    signedInUserId: number,
+    pageFromQuery: string,
+    usernameFromQuery: string,
+  ) {
+    let users = (await this.usersService.getAllUsersUsernamesWithIds()).filter(
+      (user) => user.id !== signedInUserId,
+    );
+
+    if (usernameFromQuery) {
+      users = users.filter((user) =>
+        user.username
+          .toLowerCase()
+          .includes(usernameFromQuery.toLocaleLowerCase()),
+      );
+    }
 
     const qb = this.friendRequestsRepository.createQueryBuilder('request');
 
@@ -30,34 +42,35 @@ export class FriendRequestsService {
 
     const requests = await qb.getMany();
 
-    const page = pageFromQuery || 1;
-    const usersPerPage = 3;
+    const page = +pageFromQuery || 1;
+    const usersPerPage = 4;
 
-    const totalPages = Math.ceil(users.length / usersPerPage);
+    return {
+      totalPages: Math.ceil(users.length / usersPerPage),
+      users: users
+        .slice((page - 1) * usersPerPage, usersPerPage * page)
+        .map((user) => {
+          let requestStatus = 'lack';
 
-    return users
-      .slice((page - 1) * usersPerPage, usersPerPage * page)
-      .map((user) => {
-        let requestStatus = 'lack';
+          for (let i = 0; i < requests.length; i++) {
+            if (
+              (requests[i].receiver.id === user.id &&
+                requests[i].sender.id === signedInUserId) ||
+              (requests[i].receiver.id === signedInUserId &&
+                requests[i].sender.id === user.id)
+            )
+              requestStatus = requests[i].status;
+          }
 
-        for (let i = 0; i < requests.length; i++) {
-          if (
-            (requests[i].receiver.id === user.id &&
-              requests[i].sender.id === signedInUserId) ||
-            (requests[i].receiver.id === signedInUserId &&
-              requests[i].sender.id === user.id)
-          )
-            requestStatus = requests[i].status;
-        }
-
-        return {
-          username: user.username,
-          profile: {
-            ...user.profile,
-          },
-          requestStatus,
-        };
-      });
+          return {
+            username: user.username,
+            profile: {
+              ...user.profile,
+            },
+            requestStatus,
+          };
+        }),
+    };
   }
 
   // de facto getMyFriendsUsernames
