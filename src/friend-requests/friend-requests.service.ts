@@ -46,7 +46,8 @@ export class FriendRequestsService {
     const usersPerPage = 4;
 
     return {
-      totalPages: Math.ceil(users.length / usersPerPage),
+      limit: usersPerPage,
+      pages: Math.ceil(users.length / usersPerPage),
       users: users
         .slice((page - 1) * usersPerPage, usersPerPage * page)
         .map((user) => {
