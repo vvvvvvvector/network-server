@@ -138,7 +138,13 @@ export class FriendRequestsService {
 
     const incomingFriendRequests = await qb.getMany();
 
-    return incomingFriendRequests;
+    return incomingFriendRequests.map((req) => {
+      const reqCopy = JSON.parse(JSON.stringify(req));
+
+      delete reqCopy.createdAt; // i don't know how to not select createdAt in query builder yet
+
+      return reqCopy;
+    });
   }
 
   async sentFriendRequests(signedInUserId: number) {
@@ -159,7 +165,13 @@ export class FriendRequestsService {
 
     const sentFriendRequests = await qb.getMany();
 
-    return sentFriendRequests;
+    return sentFriendRequests.map((req) => {
+      const reqCopy = JSON.parse(JSON.stringify(req));
+
+      delete reqCopy.createdAt; // i don't know how to not select createdAt in query builder yet
+
+      return reqCopy;
+    });
   }
 
   // which user has rejected
@@ -177,7 +189,13 @@ export class FriendRequestsService {
 
     const rejectedFriendRequests = await qb.getMany();
 
-    return rejectedFriendRequests;
+    return rejectedFriendRequests.map((req) => {
+      const reqCopy = JSON.parse(JSON.stringify(req));
+
+      delete reqCopy.createdAt; // i don't know how to not select createdAt in query builder yet
+
+      return reqCopy;
+    });
   }
 
   async accept(signedInUserUsername: string, requestSenderUsername: string) {

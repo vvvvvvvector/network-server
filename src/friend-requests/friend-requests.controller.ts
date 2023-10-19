@@ -74,7 +74,7 @@ export class FriendRequestsController {
   @ApiOperation({
     summary: 'List of users of entire network',
     description:
-      'Returns list of users of entire network with information about request status',
+      'Returns list of users of entire network per page, with information about request status',
   })
   @Get('find')
   async networkUsersUsernames(
