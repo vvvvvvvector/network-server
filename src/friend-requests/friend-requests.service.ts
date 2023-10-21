@@ -325,6 +325,17 @@ export class FriendRequestsService {
 
   async alreadyFriends(senderId: number, receiverId: number) {
     const friendRequest = await this.friendRequestsRepository.findOne({
+      relations: ['sender', 'receiver'],
+      select: {
+        id: true,
+        status: true,
+        sender: {
+          id: true,
+        },
+        receiver: {
+          id: true,
+        },
+      },
       where: [
         {
           sender: {
@@ -345,6 +356,6 @@ export class FriendRequestsService {
       ],
     });
 
-    return friendRequest?.status;
+    return friendRequest;
   }
 }

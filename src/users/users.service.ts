@@ -156,12 +156,39 @@ export class UsersService {
 
       const user = await qb.getOneOrFail();
 
-      const status = await this.friendRequestsService.alreadyFriends(
+      const friendRequest = await this.friendRequestsService.alreadyFriends(
         signedInUserId,
         user.id,
       );
 
-      return { isFriend: status === 'accepted', ...parseUserContacts(user) };
+      let friendRequestStatus = '';
+
+      switch (friendRequest?.status) {
+        case 'accepted':
+          friendRequestStatus = 'friend';
+
+          break;
+        case 'pending':
+          friendRequestStatus =
+            friendRequest.sender.id === signedInUserId
+              ? 'pending:receiver'
+              : 'pending:sender';
+
+          break;
+        case 'rejected':
+          friendRequestStatus =
+            friendRequest.sender.id === signedInUserId
+              ? 'pending:receiver'
+              : 'rejected:sender';
+
+          break;
+        default:
+          friendRequestStatus = 'none';
+
+          break;
+      }
+
+      return { friendRequestStatus, ...parseUserContacts(user) };
     } catch (error) {
       throw new BadRequestException('User not found.');
     }
