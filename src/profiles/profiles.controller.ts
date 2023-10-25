@@ -1,7 +1,6 @@
 import {
   Controller,
   Delete,
-  Patch,
   Post,
   Put,
   Req,
@@ -9,9 +8,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { ROUTES, SWAGGER_API_TAGS } from 'src/utils/constants';
+
 import { ProfilesService } from './profiles.service';
+
 import { UploadAvatar } from './decorators/upload-avatar.decorator';
 
 @UseGuards(JwtAuthGuard)

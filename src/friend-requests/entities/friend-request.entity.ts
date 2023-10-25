@@ -6,7 +6,9 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
+
 import { RequestStatus } from '../utils';
+
 import { User } from 'src/users/entities/user.entity';
 import { TABLES } from 'src/utils/constants';
 

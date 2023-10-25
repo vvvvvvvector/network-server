@@ -1,4 +1,5 @@
 import { SelectQueryBuilder } from 'typeorm';
+
 import { User } from './entities/user.entity';
 
 export const parseUserContacts = (user: User) => {

@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { SignUpUserDto } from 'src/users/dtos/auth.dto';
-import { UsersService } from 'src/users/users.service';
-import { ProfilesService } from 'src/profiles/profiles.service';
+
 import * as bcrypt from 'bcrypt';
+
 import { ProfileNotActivatedException } from './exceptions/profile-not-activated';
 import { UsernameExistsException } from './exceptions/username-exists';
 import { EmailExistsException } from './exceptions/email-exists';
+
+import { SignUpUserDto } from 'src/users/dtos/auth.dto';
+import { UsersService } from 'src/users/users.service';
+import { ProfilesService } from 'src/profiles/profiles.service';
 
 @Injectable()
 export class AuthService {

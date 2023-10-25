@@ -5,8 +5,9 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import { Profile } from 'src/profiles/entities/profile.entity';
 import { Contacts } from './contacts/contacts.entity';
+
+import { Profile } from 'src/profiles/entities/profile.entity';
 import { TABLES } from 'src/utils/constants';
 
 @Entity({ name: TABLES.USERS })

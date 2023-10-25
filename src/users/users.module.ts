@@ -1,8 +1,11 @@
 import { Module, forwardRef } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { User } from './entities/user.entity';
+
 import { FriendRequestsModule } from 'src/friend-requests/friend-requests.module';
 
 // exports TypeOrmModule if i want to use repository outside of the module

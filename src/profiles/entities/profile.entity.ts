@@ -5,6 +5,7 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
 } from 'typeorm';
+
 import { User } from 'src/users/entities/user.entity';
 import { TABLES } from 'src/utils/constants';
 

@@ -1,10 +1,14 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+
 import { Repository } from 'typeorm';
+
 import { FriendRequest } from './entities/friend-request.entity';
+
 import { UsersService } from 'src/users/users.service';
-import { MyselfFriendRequestException } from './exceptions/myself-friend-request';
+
 import { RequestHasAlreadyBeenCreatedException } from './exceptions/request-has-already-been-created';
+import { MyselfFriendRequestException } from './exceptions/myself-friend-request';
 import { NotReceiverRejectException } from './exceptions/not-receiver-reject';
 import { NotReceiverAcceptException } from './exceptions/not-receiver-accept';
 

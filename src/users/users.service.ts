@@ -5,15 +5,20 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+
 import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
-import { SignUpUserDto } from './dtos/auth.dto';
-import { Profile } from 'src/profiles/entities/profile.entity';
+
 import {
   getPublicUserDataQueryBuilder,
   getSignedInUserDataQueryBuilder,
   parseUserContacts,
 } from './utils';
+
+import { User } from './entities/user.entity';
+
+import { SignUpUserDto } from './dtos/auth.dto';
+
+import { Profile } from 'src/profiles/entities/profile.entity';
 import { FriendRequestsService } from 'src/friend-requests/friend-requests.service';
 
 @Injectable()

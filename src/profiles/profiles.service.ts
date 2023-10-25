@@ -3,14 +3,13 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
-
 import { InjectRepository } from '@nestjs/typeorm';
+
 import { Repository } from 'typeorm';
-
-import { Profile } from './entities/profile.entity';
-
 import { unlink } from 'fs';
 import { join } from 'path';
+
+import { Profile } from './entities/profile.entity';
 
 @Injectable()
 export class ProfilesService {
