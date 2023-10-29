@@ -17,6 +17,15 @@ export class ProfilesService {
     @InjectRepository(Profile) private profilesRepository: Repository<Profile>,
   ) {}
 
+  async updateBio(uuid: string, bio: string) {
+    const profile = await this.getProfileByUuid(uuid);
+
+    if (!bio) profile.bio = null;
+    else profile.bio = bio;
+
+    return this.profilesRepository.save(profile);
+  }
+
   async removeAvatar(uuid: string) {
     const profile = await this.getProfileByUuid(uuid);
 

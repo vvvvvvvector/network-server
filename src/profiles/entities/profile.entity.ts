@@ -27,4 +27,7 @@ export class Profile {
   // if relation is not bi-directional, you can't use relations on profilesRepository (relations: ['user']), but you can use relations on usersRepository (relations: ['profile'])
   @OneToOne(() => User, (user) => user.profile)
   user: User;
+
+  @Column({ nullable: true })
+  bio?: string;
 }

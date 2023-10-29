@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Delete,
   Post,
@@ -7,7 +8,7 @@ import {
   UploadedFile,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { ROUTES, SWAGGER_API_TAGS } from 'src/utils/constants';
@@ -16,6 +17,8 @@ import { ProfilesService } from './profiles.service';
 
 import { UploadAvatar } from './decorators/upload-avatar.decorator';
 
+import { UpdateBioDto } from './dtos/bio.dto';
+
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 @ApiTags(SWAGGER_API_TAGS.PROFILES)
@@ -23,7 +26,12 @@ import { UploadAvatar } from './decorators/upload-avatar.decorator';
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
 
-  @Post('/upload-avatar')
+  @Put('/bio')
+  async updateBio(@Req() req, @Body() dto: UpdateBioDto) {
+    return this.profilesService.updateBio(req.user.uuid, dto.bio);
+  }
+
+  @Post('/avatar')
   @UploadAvatar()
   async uploadAvatar(
     @Req() req,
@@ -33,7 +41,7 @@ export class ProfilesController {
     return this.profilesService.saveAvatar(req.user.uuid, file.filename);
   }
 
-  @Put('/update-avatar')
+  @Put('/avatar')
   @UploadAvatar()
   async updateAvatar(
     @Req() req,
@@ -43,7 +51,7 @@ export class ProfilesController {
     return this.profilesService.updateAvatar(req.user.uuid, file.filename);
   }
 
-  @Delete('/remove-avatar')
+  @Delete('/avatar')
   async removeAvatar(@Req() req) {
     return this.profilesService.removeAvatar(req.user.uuid);
   }
