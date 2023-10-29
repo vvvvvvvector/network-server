@@ -166,34 +166,34 @@ export class UsersService {
         user.id,
       );
 
-      let friendRequestStatus = '';
+      let extendedFriendRequestStatus = '';
 
       switch (friendRequest?.status) {
         case 'accepted':
-          friendRequestStatus = 'friend';
+          extendedFriendRequestStatus = 'friend';
 
           break;
         case 'pending':
-          friendRequestStatus =
+          extendedFriendRequestStatus =
             friendRequest.sender.id === signedInUserId
               ? 'pending:receiver'
               : 'pending:sender';
 
           break;
         case 'rejected':
-          friendRequestStatus =
+          extendedFriendRequestStatus =
             friendRequest.sender.id === signedInUserId
               ? 'pending:receiver'
               : 'rejected:sender';
 
           break;
         default:
-          friendRequestStatus = 'none';
+          extendedFriendRequestStatus = 'none';
 
           break;
       }
 
-      return { friendRequestStatus, ...parseUserContacts(user) };
+      return { extendedFriendRequestStatus, ...parseUserContacts(user) };
     } catch (error) {
       throw new BadRequestException('User not found.');
     }

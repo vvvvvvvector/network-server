@@ -55,7 +55,7 @@ export class FriendRequestsService {
       users: users
         .slice((page - 1) * usersPerPage, usersPerPage * page)
         .map((user) => {
-          let requestStatus = 'lack';
+          let requestStatus = 'none';
 
           for (let i = 0; i < requests.length; i++) {
             if (
