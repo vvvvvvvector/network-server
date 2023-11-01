@@ -4,10 +4,12 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
   CreateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 
 import { User } from 'src/users/entities/user.entity';
 import { TABLES } from 'src/utils/constants';
+import { Avatar } from './avatar.entity';
 
 @Entity({ name: TABLES.PROFILES })
 export class Profile {
@@ -17,8 +19,9 @@ export class Profile {
   @Column({ default: false })
   isActivated: boolean;
 
-  @Column({ nullable: true })
-  avatar?: string;
+  @OneToOne(() => Avatar, { cascade: ['insert', 'update'] })
+  @JoinColumn({ name: 'avatarId' })
+  avatar: Avatar;
 
   @CreateDateColumn()
   createdAt: Date;

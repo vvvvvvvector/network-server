@@ -19,4 +19,5 @@ export const TABLES = {
   CONTACTS: 'contacts',
   PROFILES: 'profiles',
   FRIEND_REQUESTS: 'friend-requests',
+  AVATARS: 'avatars',
 } as const;

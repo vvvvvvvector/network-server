@@ -8,11 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { Repository } from 'typeorm';
 
-import {
-  getPublicUserDataQueryBuilder,
-  getSignedInUserDataQueryBuilder,
-  parseUserContacts,
-} from './utils';
+import { getSignedInUserDataQueryBuilder, parseUserContacts } from './utils';
 
 import { User } from './entities/user.entity';
 
@@ -20,6 +16,8 @@ import { SignUpUserDto } from './dtos/auth.dto';
 
 import { Profile } from 'src/profiles/entities/profile.entity';
 import { FriendRequestsService } from 'src/friend-requests/friend-requests.service';
+import { Avatar } from 'src/profiles/entities/avatar.entity';
+import e from 'express';
 
 @Injectable()
 export class UsersService {
@@ -67,12 +65,14 @@ export class UsersService {
     try {
       const { password, ...user } = await this.usersRepository.findOneOrFail({
         where: { id },
-        relations: ['profile'],
+        relations: ['profile', 'profile.avatar'],
       });
 
       return {
         username: user.username,
-        avatar: user.profile.avatar,
+        avatar: user.profile.avatar.name
+          ? { name: user.profile.avatar.name }
+          : null,
       };
     } catch (error) {
       throw new BadRequestException('User not found.');
@@ -86,10 +86,14 @@ export class UsersService {
   }
 
   async createUser(dto: SignUpUserDto) {
+    const profile = new Profile();
+
+    profile.avatar = new Avatar();
+
     const user = this.usersRepository.create({
       username: dto.username,
       password: dto.password,
-      profile: new Profile(),
+      profile,
       contacts: {
         email: {
           contact: dto.email,
@@ -141,25 +145,51 @@ export class UsersService {
   }
 
   async getAllUsersUsernamesWithIds() {
-    const qb = this.usersRepository.createQueryBuilder('user');
-
-    const users = await qb
-      .leftJoin('user.profile', 'profile')
-      .select(['user.id', 'user.username', 'profile.avatar'])
-      .getMany();
+    const users = await this.usersRepository.find({
+      relations: ['profile', 'profile.avatar'],
+      select: {
+        id: true,
+        username: true,
+        profile: {
+          uuid: true,
+          avatar: {
+            name: true,
+          },
+        },
+      },
+    });
 
     return users;
   }
 
   async getUserPublicAvailableData(signedInUserId: number, username: string) {
     try {
-      const qb = getPublicUserDataQueryBuilder(
-        this.usersRepository.createQueryBuilder('user'),
-      );
-
-      qb.where('user.username = :username', { username });
-
-      const user = await qb.getOneOrFail();
+      const user = await this.usersRepository.findOneOrFail({
+        relations: ['profile', 'profile.avatar', 'contacts', 'contacts.email'],
+        select: {
+          id: true,
+          username: true,
+          profile: {
+            isActivated: true,
+            createdAt: true,
+            bio: true,
+            avatar: {
+              name: true,
+              likes: true,
+            },
+          },
+          contacts: {
+            id: true,
+            email: {
+              contact: true,
+              isPublic: true,
+            },
+          },
+        },
+        where: {
+          username,
+        },
+      });
 
       const friendRequest = await this.friendRequestsService.alreadyFriends(
         signedInUserId,

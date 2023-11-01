@@ -1,7 +1,7 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import { FriendRequest } from './entities/friend-request.entity';
 
@@ -38,13 +38,18 @@ export class FriendRequestsService {
       );
     }
 
-    const qb = this.friendRequestsRepository.createQueryBuilder('request');
-
-    qb.leftJoin('request.sender', 'sender')
-      .leftJoin('request.receiver', 'receiver')
-      .select(['request.status', 'sender', 'receiver']);
-
-    const requests = await qb.getMany();
+    const requests = await this.friendRequestsRepository.find({
+      relations: ['sender', 'receiver'],
+      select: {
+        status: true,
+        sender: {
+          id: true,
+        },
+        receiver: {
+          id: true,
+        },
+      },
+    });
 
     const page = +pageFromQuery || 1;
     const usersPerPage = 4;
@@ -70,7 +75,7 @@ export class FriendRequestsService {
           return {
             username: user.username,
             profile: {
-              ...user.profile,
+              avatar: { ...user.profile.avatar },
             },
             requestStatus,
           };
@@ -78,128 +83,161 @@ export class FriendRequestsService {
     };
   }
 
-  // de facto getMyFriendsUsernames
   async acceptedFriendRequests(
     signedInUserId: number,
     signedInUserUsername: string,
   ) {
-    const qb =
-      this.friendRequestsRepository.createQueryBuilder('friendRequest');
-
-    qb.leftJoin('friendRequest.sender', 'sender')
-      .leftJoin('friendRequest.receiver', 'receiver')
-      .leftJoin('receiver.profile', 'receiverProfile')
-      .leftJoin('sender.profile', 'senderProfile')
-      .select([
-        'friendRequest.createdAt',
-        'sender.username',
-        'receiver.username',
-        'receiverProfile.avatar',
-        'senderProfile.avatar',
-      ])
-      .where(
-        'friendRequest.senderId = :signedInUserId AND friendRequest.status = :status',
+    const accepted = await this.friendRequestsRepository.find({
+      relations: [
+        'sender',
+        'receiver',
+        'sender.profile',
+        'receiver.profile',
+        'sender.profile.avatar',
+        'receiver.profile.avatar',
+      ],
+      select: {
+        createdAt: true,
+        sender: {
+          username: true,
+          profile: {
+            createdAt: true,
+            avatar: {
+              name: true,
+            },
+          },
+        },
+        receiver: {
+          username: true,
+          profile: {
+            createdAt: true,
+            avatar: {
+              name: true,
+            },
+          },
+        },
+      },
+      where: [
         {
-          signedInUserId,
+          sender: {
+            id: signedInUserId,
+          },
           status: 'accepted',
         },
-      )
-      .orWhere(
-        'friendRequest.receiverId = :signedInUserId AND friendRequest.status = :status',
         {
-          signedInUserId,
+          receiver: {
+            id: signedInUserId,
+          },
           status: 'accepted',
         },
-      );
-
-    const acceptedFriendRequests = await qb.getMany();
-
-    return acceptedFriendRequests.map((request) => {
-      return {
-        username:
-          request.sender.username === signedInUserUsername
-            ? request.receiver.username
-            : request.sender.username,
-        profile:
-          request.sender.username === signedInUserUsername
-            ? request.receiver.profile
-            : request.sender.profile,
-      };
+      ],
     });
+
+    return accepted.map((req) => ({
+      username:
+        req.sender.username === signedInUserUsername
+          ? req.receiver.username
+          : req.sender.username,
+      profile: {
+        avatar:
+          req.sender.username === signedInUserUsername
+            ? req.receiver.profile.avatar
+            : req.sender.profile.avatar,
+      },
+    }));
   }
 
   async incomingFriendRequests(signedInUserId: number) {
-    const qb =
-      this.friendRequestsRepository.createQueryBuilder('friendRequest');
-
-    qb.leftJoin('friendRequest.sender', 'sender')
-      .leftJoin('sender.profile', 'profile')
-      .select(['friendRequest.createdAt', 'sender.username', 'profile.avatar'])
-      .where('friendRequest.receiverId = :signedInUserId', {
-        signedInUserId,
-      })
-      .andWhere('friendRequest.status = :status', { status: 'pending' });
-
-    const incomingFriendRequests = await qb.getMany();
-
-    return incomingFriendRequests.map((req) => {
-      const reqCopy = JSON.parse(JSON.stringify(req));
-
-      delete reqCopy.createdAt; // i don't know how to not select createdAt in query builder yet
-
-      return reqCopy;
+    const incoming = await this.friendRequestsRepository.find({
+      relations: ['sender.profile', 'sender.profile.avatar'],
+      select: {
+        createdAt: true,
+        sender: {
+          username: true,
+          profile: {
+            createdAt: true,
+            avatar: {
+              name: true,
+            },
+          },
+        },
+      },
+      where: {
+        receiver: {
+          id: signedInUserId,
+        },
+        status: 'pending',
+      },
     });
+
+    return incoming.map((req) => ({
+      username: req.sender.username,
+      profile: {
+        avatar: req.sender.profile.avatar,
+      },
+    }));
   }
 
   async sentFriendRequests(signedInUserId: number) {
-    const qb =
-      this.friendRequestsRepository.createQueryBuilder('friendRequest');
-
-    qb.leftJoin('friendRequest.receiver', 'receiver')
-      .leftJoin('receiver.profile', 'profile')
-      .select([
-        'friendRequest.createdAt',
-        'receiver.username',
-        'profile.avatar',
-      ])
-      .where('friendRequest.senderId = :signedInUserId', { signedInUserId })
-      .andWhere('friendRequest.status IN (:...statuses)', {
-        statuses: ['pending', 'rejected'],
-      });
-
-    const sentFriendRequests = await qb.getMany();
-
-    return sentFriendRequests.map((req) => {
-      const reqCopy = JSON.parse(JSON.stringify(req));
-
-      delete reqCopy.createdAt; // i don't know how to not select createdAt in query builder yet
-
-      return reqCopy;
+    const sent = await this.friendRequestsRepository.find({
+      relations: ['receiver.profile', 'receiver.profile.avatar'],
+      select: {
+        createdAt: true,
+        receiver: {
+          username: true,
+          profile: {
+            createdAt: true,
+            avatar: {
+              name: true,
+            },
+          },
+        },
+      },
+      where: {
+        sender: {
+          id: signedInUserId,
+        },
+        status: In(['pending', 'rejected']),
+      },
     });
+
+    return sent.map((req) => ({
+      username: req.receiver.username,
+      profile: {
+        avatar: req.receiver.profile.avatar,
+      },
+    }));
   }
 
-  // which user has rejected
   async rejectedFriendRequests(signedInUserId: number) {
-    const qb =
-      this.friendRequestsRepository.createQueryBuilder('friendRequest');
-
-    qb.leftJoin('friendRequest.sender', 'sender')
-      .leftJoin('sender.profile', 'profile')
-      .select(['friendRequest.createdAt', 'sender.username', 'profile.avatar'])
-      .where('friendRequest.receiverId = :signedInUserId', {
-        signedInUserId,
-      })
-      .andWhere('friendRequest.status = :status', { status: 'rejected' });
-
-    const rejectedFriendRequests = await qb.getMany();
-
-    return rejectedFriendRequests.map((req) => {
-      const reqCopy = JSON.parse(JSON.stringify(req));
-
-      delete reqCopy.createdAt; // i don't know how to not select createdAt in query builder yet
-
-      return reqCopy;
+    const rejected = await this.friendRequestsRepository.find({
+      relations: ['sender.profile', 'sender.profile.avatar'],
+      select: {
+        createdAt: true,
+        sender: {
+          username: true,
+          profile: {
+            createdAt: true,
+            avatar: {
+              name: true,
+            },
+          },
+        },
+      },
+      where: {
+        receiver: {
+          id: signedInUserId,
+        },
+        status: 'rejected',
+      },
     });
+
+    return rejected.map((req) => ({
+      username: req.sender.username,
+      profile: {
+        avatar: req.sender.profile.avatar,
+      },
+    }));
   }
 
   async accept(signedInUserUsername: string, requestSenderUsername: string) {

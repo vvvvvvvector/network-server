@@ -30,7 +30,7 @@ export class ProfilesService {
     const profile = await this.getProfileByUuid(uuid);
 
     unlink(
-      join(__dirname, `../../uploads/avatars/${profile.avatar}`),
+      join(__dirname, `../../uploads/avatars/${profile.avatar.name}`),
       (err) => {
         if (err) {
           console.log(err);
@@ -40,7 +40,8 @@ export class ProfilesService {
       },
     );
 
-    profile.avatar = null;
+    profile.avatar.name = null;
+    profile.avatar.likes = null;
 
     return this.profilesRepository.save(profile);
   }
@@ -48,7 +49,8 @@ export class ProfilesService {
   async saveAvatar(uuid: string, filename: string) {
     const profile = await this.getProfileByUuid(uuid);
 
-    profile.avatar = filename;
+    profile.avatar.name = filename;
+    profile.avatar.likes = 0;
 
     return this.profilesRepository.save(profile);
   }
@@ -57,7 +59,7 @@ export class ProfilesService {
     const profile = await this.getProfileByUuid(uuid);
 
     unlink(
-      join(__dirname, `../../uploads/avatars/${profile.avatar}`),
+      join(__dirname, `../../uploads/avatars/${profile.avatar.name}`),
       (err) => {
         if (err) {
           console.log(err);
@@ -67,7 +69,8 @@ export class ProfilesService {
       },
     );
 
-    profile.avatar = filename;
+    profile.avatar.name = filename;
+    profile.avatar.likes = 0;
 
     return this.profilesRepository.save(profile);
   }
@@ -84,6 +87,7 @@ export class ProfilesService {
     try {
       const profile = await this.profilesRepository.findOneOrFail({
         where: { uuid },
+        relations: ['avatar'],
       });
 
       return profile;

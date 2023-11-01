@@ -61,10 +61,12 @@ export class ProfilesController {
 // .addFileTypeValidator({
 //   fileType: new RegExp('.(png|jpeg|jpg)'),
 // })
+
 // .addMaxSizeValidator({
 //   message: 'Please upload a file less than 1MB',
 //   maxSize: 1024 * 1024 * 1,
 // })
+
 // .build({
 //   errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
 // }),

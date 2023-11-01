@@ -28,6 +28,7 @@ export const getSignedInUserDataQueryBuilder = (
   qb: SelectQueryBuilder<User>,
 ) => {
   qb.leftJoin('user.profile', 'profile') // user.profile references profile property defined in the User entity
+    .leftJoin('profile.avatar', 'avatar')
     .leftJoin('user.contacts', 'contacts') // user.contacts references contacts property defined in the User entity
     .leftJoin('contacts.email', 'email') // contacts.email references email property defined in the Contacts entity
     .select([
@@ -37,6 +38,8 @@ export const getSignedInUserDataQueryBuilder = (
       'profile.createdAt',
       'profile.avatar',
       'profile.bio',
+      'avatar.name',
+      'avatar.likes',
       'contacts',
       'email.contact',
       'email.isPublic',
@@ -47,6 +50,7 @@ export const getSignedInUserDataQueryBuilder = (
 
 export const getPublicUserDataQueryBuilder = (qb: SelectQueryBuilder<User>) => {
   qb.leftJoin('user.profile', 'profile') // user.profile references profile property defined in the User entity
+    .leftJoin('profile.avatar', 'avatar')
     .leftJoin('user.contacts', 'contacts') // user.contacts references contacts property defined in the User entity
     .leftJoin('contacts.email', 'email') // contacts.email references email property defined in the Contacts entity
     .select([
@@ -56,6 +60,8 @@ export const getPublicUserDataQueryBuilder = (qb: SelectQueryBuilder<User>) => {
       'profile.createdAt',
       'profile.avatar',
       'profile.bio',
+      'avatar.name',
+      'avatar.likes',
       'contacts',
       'email.contact',
       'email.isPublic',
