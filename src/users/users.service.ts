@@ -228,4 +228,25 @@ export class UsersService {
       throw new BadRequestException('User not found.');
     }
   }
+
+  async toogleEmailPrivacy(id: number) {
+    try {
+      const user = await this.usersRepository.findOneOrFail({
+        where: { id },
+        relations: ['contacts', 'contacts.email'],
+      });
+
+      user.contacts.email.isPublic = !user.contacts.email.isPublic;
+
+      const newUser = await this.usersRepository.save(user);
+
+      return {
+        email: {
+          isPublic: newUser.contacts.email.isPublic,
+        },
+      };
+    } catch (error) {
+      throw new BadRequestException('User not found.');
+    }
+  }
 }

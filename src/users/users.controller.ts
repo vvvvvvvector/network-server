@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Patch, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { UsersService } from './users.service';
@@ -37,5 +37,10 @@ export class UsersController {
     @Param('username') username: string,
   ) {
     return this.usersService.getUserPublicAvailableData(req.user.id, username);
+  }
+
+  @Patch('me/contacts/email/privacy')
+  async toogleEmailPrivacy(@Req() req) {
+    return this.usersService.toogleEmailPrivacy(req.user.id);
   }
 }
