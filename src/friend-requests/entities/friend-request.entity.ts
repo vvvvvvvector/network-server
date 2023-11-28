@@ -7,7 +7,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 
-import { RequestStatus } from '../utils';
+import { RequestStatus } from '../types';
 
 import { User } from 'src/users/entities/user.entity';
 import { TABLES } from 'src/utils/constants';
