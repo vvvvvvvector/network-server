@@ -9,6 +9,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { FriendRequestsModule } from './friend-requests/friend-requests.module';
+import { MessagesModule } from './messages/messages.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { FriendRequestsModule } from './friend-requests/friend-requests.module';
     UsersModule,
     ProfilesModule,
     FriendRequestsModule,
+    MessagesModule,
     ConfigModule.forRoot({
       envFilePath: ['.development.env'],
       cache: true,

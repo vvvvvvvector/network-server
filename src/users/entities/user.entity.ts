@@ -4,11 +4,14 @@ import {
   Column,
   OneToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
-import { Contacts } from './contacts/contacts.entity';
+
+import { Contacts } from './contacts.entity';
 
 import { Profile } from 'src/profiles/entities/profile.entity';
 import { TABLES } from 'src/utils/constants';
+import { Message } from 'src/messages/entities/message.entity';
 
 @Entity({ name: TABLES.USERS })
 export class User {
@@ -20,6 +23,9 @@ export class User {
 
   @Column()
   password: string;
+
+  @OneToMany(() => Message, (message) => message.sender)
+  messages: Message[];
 
   // first arg: target relation type | second arg: inverse relation
   // if relation is not bi-directional, you can't use relations on profilesRepository (relations: ['user']), but you can use relations on usersRepository (relations: ['profile'])

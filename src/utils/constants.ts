@@ -20,4 +20,5 @@ export const TABLES = {
   PROFILES: 'profiles',
   FRIEND_REQUESTS: 'friend-requests',
   AVATARS: 'avatars',
+  MESSAGES: 'messages',
 } as const;
