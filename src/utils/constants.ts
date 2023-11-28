@@ -3,6 +3,8 @@ export const ROUTES = {
   USERS: 'users',
   FRIEND_REQUESTS: 'friend-requests',
   PROFILES: 'profiles',
+  MESSAGES: 'messages',
+  CHATS: 'chats',
 } as const;
 
 export const SWAGGER_API_TAGS = {
@@ -11,6 +13,8 @@ export const SWAGGER_API_TAGS = {
   USERS: 'users',
   FRIEND_REQUESTS: 'friend-requests',
   PROFILES: 'profiles',
+  MESSAGES: 'messages',
+  CHATS: 'chats',
 } as const;
 
 export const TABLES = {

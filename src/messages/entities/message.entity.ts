@@ -18,12 +18,12 @@ export class Message {
   @Column()
   content: string;
 
+  @CreateDateColumn()
+  createdAt: Date;
+
   @ManyToOne(() => User, (user) => user.messages)
   sender: User;
 
   @ManyToOne(() => Chat, (chat) => chat.messages)
   chat: Chat;
-
-  @CreateDateColumn()
-  createdAt: Date;
 }

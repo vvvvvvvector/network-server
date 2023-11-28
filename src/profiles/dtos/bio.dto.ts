@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { MaxLength, MinLength } from 'class-validator';
+import { MaxLength } from 'class-validator';
 
 export class UpdateBioDto {
   @ApiProperty({ default: 'hello world!' })

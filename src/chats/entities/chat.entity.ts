@@ -14,8 +14,8 @@ import { User } from 'src/users/entities/user.entity';
 
 @Entity({ name: TABLES.CHATS })
 export class Chat {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @OneToOne(() => User, { createForeignKeyConstraints: false })
   @JoinColumn()
@@ -25,12 +25,12 @@ export class Chat {
   @JoinColumn()
   addressee: User;
 
-  @OneToMany(() => Message, (message) => message.chat)
-  messages: Message[];
-
   @Column({ nullable: true })
   lastMessageContent: string;
 
   @UpdateDateColumn({ nullable: true })
   lastMessageSentAt: Date;
+
+  @OneToMany(() => Message, (message) => message.chat)
+  messages: Message[];
 }
