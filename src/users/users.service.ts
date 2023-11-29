@@ -17,7 +17,6 @@ import { SignUpUserDto } from './dtos/auth.dto';
 import { Profile } from 'src/profiles/entities/profile.entity';
 import { FriendRequestsService } from 'src/friend-requests/friend-requests.service';
 import { Avatar } from 'src/profiles/entities/avatar.entity';
-import e from 'express';
 
 @Injectable()
 export class UsersService {
