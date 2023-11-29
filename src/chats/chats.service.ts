@@ -7,6 +7,9 @@ import { Chat } from './entities/chat.entity';
 
 import { UsersService } from 'src/users/users.service';
 
+import { ChatAlreadyExistsException } from './exceptions/chat-already-exists';
+import { ChatWithYourselfException } from './exceptions/chat-with-yourself';
+
 @Injectable()
 export class ChatsService {
   constructor(
@@ -17,6 +20,31 @@ export class ChatsService {
   async initiateChat(signedInUserId: number, addresseeUsername: string) {
     const addresseeId =
       await this.usersService.findUserIdByUsername(addresseeUsername);
+
+    if (signedInUserId === addresseeId) throw new ChatWithYourselfException();
+
+    const existingChat = await this.chatsRepository.findOne({
+      where: [
+        {
+          initiator: {
+            id: signedInUserId,
+          },
+          addressee: {
+            id: addresseeId,
+          },
+        },
+        {
+          initiator: {
+            id: addresseeId,
+          },
+          addressee: {
+            id: signedInUserId,
+          },
+        },
+      ],
+    });
+
+    if (existingChat) throw new ChatAlreadyExistsException();
 
     const chat = this.chatsRepository.create({
       initiator: {
