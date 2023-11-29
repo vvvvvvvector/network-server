@@ -33,4 +33,66 @@ export class ChatsService {
 
     return newChat;
   }
+
+  async getAllAuthorizedUserChats(signedInUserId: number) {
+    const chats = await this.chatsRepository.find({
+      relations: [
+        'initiator',
+        'initiator.profile.avatar',
+        'addressee',
+        'addressee.profile.avatar',
+      ],
+      select: {
+        id: true,
+        lastMessageSentAt: true,
+        lastMessageContent: true,
+        addressee: {
+          id: true,
+          username: true,
+          profile: {
+            uuid: true,
+            avatar: {
+              name: true,
+            },
+          },
+        },
+        initiator: {
+          id: true,
+          username: true,
+          profile: {
+            uuid: true,
+            avatar: {
+              name: true,
+            },
+          },
+        },
+      },
+      where: [
+        {
+          addressee: {
+            id: signedInUserId,
+          },
+        },
+        {
+          initiator: {
+            id: signedInUserId,
+          },
+        },
+      ],
+    });
+
+    return chats.map((chat) => ({
+      id: chat.id,
+      friendUsername:
+        chat.initiator.id === signedInUserId
+          ? chat.addressee.username
+          : chat.initiator.username,
+      friendAvatar:
+        chat.initiator.id === signedInUserId
+          ? chat.addressee.profile.avatar.name
+          : chat.initiator.profile.avatar.name,
+      lastMessageContent: chat.lastMessageContent,
+      lastMessageSentAt: chat.lastMessageSentAt,
+    }));
+  }
 }

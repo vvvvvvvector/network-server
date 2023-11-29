@@ -23,11 +23,6 @@ import { InitiateChatDto } from './dtos/initate-chat.dto';
 export class ChatsController {
   constructor(private readonly chatsService: ChatsService) {}
 
-  @Get()
-  getAllAuthorizedUserChats(@Req() req) {
-    return 'get all my chats';
-  }
-
   @Get(':chatId')
   getChatById(@Param('chatId') chatId: string) {
     return `chat id: ${chatId}`;
@@ -40,5 +35,10 @@ export class ChatsController {
     dto: InitiateChatDto,
   ) {
     return this.chatsService.initiateChat(req.user.id, dto.addresseeUsername);
+  }
+
+  @Get()
+  async getAllAuthorizedUserChats(@Req() req) {
+    return this.chatsService.getAllAuthorizedUserChats(req.user.id);
   }
 }
