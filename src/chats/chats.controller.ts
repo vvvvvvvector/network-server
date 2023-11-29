@@ -23,9 +23,9 @@ import { InitiateChatDto } from './dtos/initate-chat.dto';
 export class ChatsController {
   constructor(private readonly chatsService: ChatsService) {}
 
-  @Get(':chatId')
-  getChatById(@Param('chatId') chatId: string) {
-    return `chat id: ${chatId}`;
+  @Get(':id')
+  async getChatById(@Req() req, @Param('id') id: string) {
+    return this.chatsService.getChatById(req.user.username, id);
   }
 
   @Post()
