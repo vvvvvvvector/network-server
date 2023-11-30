@@ -123,9 +123,9 @@ export class ChatsService {
       lastMessageContent: null,
     });
 
-    const newChat = await this.chatsRepository.save(chat);
+    const { id } = await this.chatsRepository.save(chat);
 
-    return newChat;
+    return id;
   }
 
   async getAllAuthorizedUserChats(signedInUserId: number) {
