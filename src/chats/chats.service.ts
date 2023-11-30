@@ -22,32 +22,28 @@ export class ChatsService {
     authorizedUserId: number,
     addresseeUsername: string,
   ) {
-    try {
-      const { id } = await this.chatsRepository.findOneOrFail({
-        where: [
-          {
-            initiator: {
-              id: authorizedUserId,
-            },
-            addressee: {
-              username: addresseeUsername,
-            },
+    const chat = await this.chatsRepository.findOne({
+      where: [
+        {
+          initiator: {
+            id: authorizedUserId,
           },
-          {
-            initiator: {
-              username: addresseeUsername,
-            },
-            addressee: {
-              id: authorizedUserId,
-            },
+          addressee: {
+            username: addresseeUsername,
           },
-        ],
-      });
+        },
+        {
+          initiator: {
+            username: addresseeUsername,
+          },
+          addressee: {
+            id: authorizedUserId,
+          },
+        },
+      ],
+    });
 
-      return id;
-    } catch (error) {
-      throw new ChatNotFoundException();
-    }
+    return chat ? chat.id : '';
   }
 
   async getChatData(authorizedUserUsername: string, id: string) {
@@ -183,8 +179,8 @@ export class ChatsService {
           : chat.initiator.username,
       friendAvatar:
         chat.initiator.id === signedInUserId
-          ? chat.addressee.profile.avatar.name
-          : chat.initiator.profile.avatar.name,
+          ? chat.addressee.profile.avatar?.name || null
+          : chat.initiator.profile.avatar?.name || null,
       lastMessageContent: chat.lastMessageContent,
       lastMessageSentAt: chat.lastMessageSentAt,
     }));

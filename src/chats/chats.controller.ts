@@ -37,7 +37,7 @@ export class ChatsController {
   }
 
   @Get(':id')
-  async getChatById(@Req() req, @Param('id') id: string) {
+  async getChatData(@Req() req, @Param('id') id: string) {
     return this.chatsService.getChatData(req.user.username, id);
   }
 
