@@ -8,7 +8,7 @@ import {
   UploadedFile,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { ROUTES, SWAGGER_API_TAGS } from 'src/utils/constants';

@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Repository } from 'typeorm';
@@ -18,7 +18,39 @@ export class ChatsService {
     private readonly usersService: UsersService,
   ) {}
 
-  async getChatById(authorizedUserUsername: string, id: string) {
+  async getChatIdByAddresseeUsername(
+    authorizedUserId: number,
+    addresseeUsername: string,
+  ) {
+    try {
+      const { id } = await this.chatsRepository.findOneOrFail({
+        where: [
+          {
+            initiator: {
+              id: authorizedUserId,
+            },
+            addressee: {
+              username: addresseeUsername,
+            },
+          },
+          {
+            initiator: {
+              username: addresseeUsername,
+            },
+            addressee: {
+              id: authorizedUserId,
+            },
+          },
+        ],
+      });
+
+      return id;
+    } catch (error) {
+      throw new ChatNotFoundException();
+    }
+  }
+
+  async getChatData(authorizedUserUsername: string, id: string) {
     try {
       const chat = await this.chatsRepository.findOneOrFail({
         select: {

@@ -6,6 +6,7 @@ import {
   Param,
   Body,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
@@ -23,9 +24,26 @@ import { InitiateChatDto } from './dtos/initate-chat.dto';
 export class ChatsController {
   constructor(private readonly chatsService: ChatsService) {}
 
+  @Get('/between-users-chat-id')
+  async getChatIdByAddresseeUsername(
+    @Req() req,
+    @Query('addressee')
+    addressee: string,
+  ) {
+    return this.chatsService.getChatIdByAddresseeUsername(
+      req.user.id,
+      addressee,
+    );
+  }
+
   @Get(':id')
   async getChatById(@Req() req, @Param('id') id: string) {
-    return this.chatsService.getChatById(req.user.username, id);
+    return this.chatsService.getChatData(req.user.username, id);
+  }
+
+  @Get()
+  async getAllAuthorizedUserChats(@Req() req) {
+    return this.chatsService.getAllAuthorizedUserChats(req.user.id);
   }
 
   @Post()
@@ -35,10 +53,5 @@ export class ChatsController {
     dto: InitiateChatDto,
   ) {
     return this.chatsService.initiateChat(req.user.id, dto.addresseeUsername);
-  }
-
-  @Get()
-  async getAllAuthorizedUserChats(@Req() req) {
-    return this.chatsService.getAllAuthorizedUserChats(req.user.id);
   }
 }
