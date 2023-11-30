@@ -59,8 +59,36 @@ export class ChatsService {
               username: true,
             },
           },
+          initiator: {
+            username: true,
+            profile: {
+              isActivated: true,
+              avatar: {
+                name: true,
+              },
+            },
+          },
+          addressee: {
+            username: true,
+            profile: {
+              isActivated: true,
+              avatar: {
+                name: true,
+              },
+            },
+          },
         },
         relations: {
+          initiator: {
+            profile: {
+              avatar: true,
+            },
+          },
+          addressee: {
+            profile: {
+              avatar: true,
+            },
+          },
           messages: {
             sender: true,
           },
@@ -71,7 +99,16 @@ export class ChatsService {
       });
 
       return {
-        ...chat,
+        id: chat.id,
+        messages: chat.messages,
+        friendUsername:
+          chat.initiator.username === authorizedUserUsername
+            ? chat.addressee.username
+            : chat.initiator.username,
+        friendAvatar:
+          chat.initiator.username === authorizedUserUsername
+            ? chat.addressee.profile.avatar?.name || null
+            : chat.initiator.profile.avatar?.name || null,
         authorizedUserUsername,
       };
     } catch (error) {

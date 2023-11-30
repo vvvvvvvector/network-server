@@ -60,7 +60,7 @@ export class UsersService {
     }
   }
 
-  async getMyAvatarAndUsername(id: number) {
+  async getUserAvatarAndUsername(id: number) {
     try {
       const { password, ...user } = await this.usersRepository.findOneOrFail({
         where: { id },

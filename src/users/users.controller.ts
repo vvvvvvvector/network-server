@@ -23,7 +23,7 @@ export class UsersController {
 
   @Get('me/username-avatar')
   async getMyAvatarAndUsername(@Req() req) {
-    return this.usersService.getMyAvatarAndUsername(req.user.id);
+    return this.usersService.getUserAvatarAndUsername(req.user.id);
   }
 
   @Get('me/username')
