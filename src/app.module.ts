@@ -11,6 +11,7 @@ import { ProfilesModule } from './profiles/profiles.module';
 import { FriendRequestsModule } from './friend-requests/friend-requests.module';
 import { MessagesModule } from './messages/messages.module';
 import { ChatsModule } from './chats/chats.module';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ChatsModule } from './chats/chats.module';
     FriendRequestsModule,
     MessagesModule,
     ChatsModule,
+    EventsModule,
     ConfigModule.forRoot({
       envFilePath: ['.development.env'],
       cache: true,

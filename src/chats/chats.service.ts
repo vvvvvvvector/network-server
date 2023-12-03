@@ -96,6 +96,11 @@ export class ChatsService {
         where: {
           id,
         },
+        order: {
+          messages: {
+            createdAt: 'ASC',
+          },
+        },
       });
 
       return {
