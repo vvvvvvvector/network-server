@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   Column,
   JoinColumn,
+  CreateDateColumn,
 } from 'typeorm';
 
 import { TABLES } from 'src/utils/constants';
@@ -28,7 +29,9 @@ export class Chat {
   @Column({ nullable: true })
   lastMessageContent: string;
 
-  @UpdateDateColumn({ nullable: true })
+  @UpdateDateColumn({
+    nullable: true,
+  })
   lastMessageSentAt: Date;
 
   @OneToMany(() => Message, (message) => message.chat)

@@ -18,6 +18,27 @@ export class ChatsService {
     private readonly usersService: UsersService,
   ) {}
 
+  async updateChatLastMessage(
+    id: string,
+    content: string,
+    lastMessageSentAt: Date,
+  ) {
+    try {
+      const chat = await this.chatsRepository.findOneOrFail({
+        where: {
+          id,
+        },
+      });
+
+      chat.lastMessageContent = content;
+      chat.lastMessageSentAt = lastMessageSentAt;
+
+      return this.chatsRepository.save(chat);
+    } catch (error) {
+      throw new ChatNotFoundException();
+    }
+  }
+
   async getChatIdByAddresseeUsername(
     authorizedUserId: number,
     addresseeUsername: string,

@@ -87,6 +87,7 @@ export class UsersService {
   async createUser(dto: SignUpUserDto) {
     const profile = new Profile();
 
+    profile.createdAt = new Date();
     profile.avatar = new Avatar();
 
     const user = this.usersRepository.create({
