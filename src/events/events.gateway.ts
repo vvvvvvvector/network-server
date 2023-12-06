@@ -13,6 +13,7 @@ import { Socket, Server } from 'socket.io';
 
 import { MessagesService } from 'src/messages/messages.service';
 import { ChatsService } from 'src/chats/chats.service';
+import { SendMessageDto } from './dtos/send-message.dto';
 
 type User = {
   id: number;
@@ -56,45 +57,39 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: Socket) {
-    this.connections.delete(client.id);
-
     console.log(`A client has disconnected: ${client.id}`);
+
+    this.connections.delete(client.id);
   }
 
   @SubscribeMessage('send-message')
   async sendMessage(
-    @MessageBody()
-    data: {
-      chatId: string;
-      receiver: string;
-      content: string;
-    },
-    @ConnectedSocket() authSocket: Socket,
+    @MessageBody() data: SendMessageDto,
+    @ConnectedSocket() client: Socket,
   ) {
-    const friendSocketId = this.getSocketIdByUsername(data.receiver); // if user is online socketId will be returned, else undefined
+    const messageReceiverSocketId = this.getSocketIdByUsername(data.receiver); // if user is online socketId will be returned, else undefined
 
-    const senderId = this.connections.get(authSocket.id).id;
-    const senderUsername = this.connections.get(authSocket.id).username;
+    const senderUsername = this.connections.get(client.id).username;
 
     const message = await this.messagesService.createMessage(
       data.content,
       data.chatId,
-      senderId,
+      this.connections.get(client.id).id,
     );
-
-    if (friendSocketId)
-      authSocket.to(friendSocketId).emit('receive-message', {
-        ...message,
-        sender: {
-          username: senderUsername,
-        },
-      });
 
     await this.chatsService.updateChatLastMessage(
       message.chat.id,
       message.content,
       message.createdAt,
     );
+
+    if (messageReceiverSocketId)
+      client.to(messageReceiverSocketId).emit('receive-message', {
+        ...message,
+        sender: {
+          username: senderUsername,
+        },
+      });
 
     return {
       ...message,
@@ -104,6 +99,3 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     };
   }
 }
-
-// authSocket.broadcast.emit('receive-message', data.message.toUpperCase()); // to ALL connected clients except sender
-// this.server.emit('receive-message', data.message.toUpperCase()); // to ALL connected clients
