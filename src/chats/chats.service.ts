@@ -238,6 +238,12 @@ export class ChatsService {
           },
         },
       ],
+      order: {
+        lastMessageSentAt: {
+          direction: 'DESC',
+          nulls: 'LAST',
+        },
+      },
     });
 
     return chats.map((chat) => ({
