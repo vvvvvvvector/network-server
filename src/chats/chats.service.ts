@@ -82,6 +82,7 @@ export class ChatsService {
           },
           initiator: {
             username: true,
+            lastSeen: true,
             profile: {
               isActivated: true,
               avatar: {
@@ -91,6 +92,7 @@ export class ChatsService {
           },
           addressee: {
             username: true,
+            lastSeen: true,
             profile: {
               isActivated: true,
               avatar: {
@@ -135,6 +137,10 @@ export class ChatsService {
           chat.initiator.username === authorizedUserUsername
             ? chat.addressee.profile.avatar?.name || null
             : chat.initiator.profile.avatar?.name || null,
+        friendLastSeen:
+          chat.initiator.username === authorizedUserUsername
+            ? chat.addressee.lastSeen
+            : chat.initiator.lastSeen,
         authorizedUserUsername,
       };
     } catch (error) {

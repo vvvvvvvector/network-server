@@ -7,9 +7,10 @@ import { EncapsulatedJwtModule } from 'src/modules/jwt.module';
 
 import { MessagesModule } from 'src/messages/messages.module';
 import { ChatsModule } from 'src/chats/chats.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
-  imports: [ChatsModule, MessagesModule, EncapsulatedJwtModule],
+  imports: [UsersModule, ChatsModule, MessagesModule, EncapsulatedJwtModule],
   providers: [EventsGateway, EventsService],
 })
 export class EventsModule {}

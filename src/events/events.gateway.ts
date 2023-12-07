@@ -13,7 +13,10 @@ import { Socket, Server } from 'socket.io';
 
 import { MessagesService } from 'src/messages/messages.service';
 import { ChatsService } from 'src/chats/chats.service';
+import { UsersService } from 'src/users/users.service';
+
 import { SendMessageDto } from './dtos/send-message.dto';
+import { SendTypingInfoDto } from './dtos/send-typing-info.dto';
 
 type User = {
   id: number;
@@ -31,6 +34,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly jwtService: JwtService,
     private readonly messagesService: MessagesService,
     private readonly chatsService: ChatsService,
+    private readonly usersService: UsersService,
   ) {}
 
   @WebSocketServer()
@@ -56,10 +60,34 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
   }
 
-  handleDisconnect(client: Socket) {
+  async handleDisconnect(client: Socket) {
     console.log(`A client has disconnected: ${client.id}`);
 
+    await this.usersService.updateLastSeenDateAndTime(
+      this.connections.get(client.id).id,
+    );
+
     this.connections.delete(client.id);
+  }
+
+  @SubscribeMessage('send-typing-info')
+  sendTypingInfo(
+    @MessageBody() data: SendTypingInfoDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const typingInfoReceiverSocketId = this.getSocketIdByUsername(
+      data.receiver,
+    ); // if user is online socketId will be returned, else undefined
+
+    if (typingInfoReceiverSocketId) {
+      client.to(typingInfoReceiverSocketId).emit('receive-typing-info', {
+        typing: true,
+      });
+
+      // client.to(typingInfoReceiverSocketId).emit('receive-typing-info', {
+      //   typing: false,
+      // });
+    }
   }
 
   @SubscribeMessage('send-message')

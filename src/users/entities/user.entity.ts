@@ -5,6 +5,7 @@ import {
   OneToOne,
   JoinColumn,
   OneToMany,
+  UpdateDateColumn,
 } from 'typeorm';
 
 import { Contacts } from './contacts.entity';
@@ -23,6 +24,9 @@ export class User {
 
   @Column()
   password: string;
+
+  @UpdateDateColumn({ nullable: true, default: null })
+  lastSeen: Date;
 
   @OneToMany(() => Message, (message) => message.sender)
   messages: Message[];

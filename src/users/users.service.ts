@@ -249,4 +249,18 @@ export class UsersService {
       throw new BadRequestException('User not found.');
     }
   }
+
+  async updateLastSeenDateAndTime(id: number) {
+    try {
+      const user = await this.usersRepository.findOneOrFail({
+        where: { id },
+      });
+
+      user.lastSeen = new Date();
+
+      await this.usersRepository.save(user);
+    } catch (error) {
+      throw new BadRequestException('User not found.');
+    }
+  }
 }
