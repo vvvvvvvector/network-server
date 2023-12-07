@@ -169,6 +169,7 @@ export class UsersService {
         select: {
           id: true,
           username: true,
+          lastSeen: true,
           profile: {
             isActivated: true,
             createdAt: true,

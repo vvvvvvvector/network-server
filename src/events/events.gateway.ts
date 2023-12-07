@@ -49,15 +49,27 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleConnection(client: Socket) {
-    const token: string | undefined = client.handshake.auth.token;
+    try {
+      const token: string | undefined = client.handshake.auth.token;
 
-    const user = this.jwtService.verify<User>(token); // to do: handle error if token is not provided or expired?
+      const user = this.jwtService.verify<User>(token); // to do: handle error if token is not provided or expired?
 
-    this.connections.set(client.id, user);
+      const alreadyConnected = !!this.getSocketIdByUsername(user.username);
 
-    console.log(
-      `1) New connection: ${client.id}\n2) Connection data: ${user.id} ${user.username}`,
-    );
+      if (alreadyConnected) {
+        client.disconnect();
+
+        return;
+      }
+
+      this.connections.set(client.id, user);
+
+      console.log(
+        `1) New connection: ${client.id}\n2) Connection data: ${user.id} ${user.username}`,
+      );
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async handleDisconnect(client: Socket) {
@@ -68,26 +80,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
 
     this.connections.delete(client.id);
-  }
-
-  @SubscribeMessage('send-typing-info')
-  sendTypingInfo(
-    @MessageBody() data: SendTypingInfoDto,
-    @ConnectedSocket() client: Socket,
-  ) {
-    const typingInfoReceiverSocketId = this.getSocketIdByUsername(
-      data.receiver,
-    ); // if user is online socketId will be returned, else undefined
-
-    if (typingInfoReceiverSocketId) {
-      client.to(typingInfoReceiverSocketId).emit('receive-typing-info', {
-        typing: true,
-      });
-
-      // client.to(typingInfoReceiverSocketId).emit('receive-typing-info', {
-      //   typing: false,
-      // });
-    }
   }
 
   @SubscribeMessage('send-message')
@@ -125,5 +117,25 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         username: senderUsername,
       },
     };
+  }
+
+  @SubscribeMessage('send-typing-info')
+  sendTypingInfo(
+    @MessageBody() data: SendTypingInfoDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const typingInfoReceiverSocketId = this.getSocketIdByUsername(
+      data.receiver,
+    ); // if user is online socketId will be returned, else undefined
+
+    if (typingInfoReceiverSocketId) {
+      client.to(typingInfoReceiverSocketId).emit('receive-typing-info', {
+        typing: true,
+      });
+
+      // client.to(typingInfoReceiverSocketId).emit('receive-typing-info', {
+      //   typing: false,
+      // });
+    }
   }
 }
