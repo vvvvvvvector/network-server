@@ -68,7 +68,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         `1) New connection: ${client.id}\n2) Connection data: ${user.id} ${user.username}`,
       );
     } catch (error) {
-      console.log(error);
+      console.log('token is not provided or expired. disconnecting...');
+
+      client.disconnect();
     }
   }
 
