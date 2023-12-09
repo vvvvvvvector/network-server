@@ -28,7 +28,7 @@ export class ProfilesController {
 
   @Put('/bio')
   async updateBio(@Req() req, @Body() dto: UpdateBioDto) {
-    return this.profilesService.updateBio(req.user.uuid, dto.bio);
+    return this.profilesService.updateBio(req.user.id, dto.bio);
   }
 
   @Post('/avatar')
@@ -38,7 +38,7 @@ export class ProfilesController {
     @UploadedFile()
     file: Express.Multer.File,
   ) {
-    return this.profilesService.saveAvatar(req.user.uuid, file.filename);
+    return this.profilesService.saveAvatar(req.user.id, file.filename);
   }
 
   @Put('/avatar')
@@ -48,12 +48,12 @@ export class ProfilesController {
     @UploadedFile()
     file: Express.Multer.File,
   ) {
-    return this.profilesService.updateAvatar(req.user.uuid, file.filename);
+    return this.profilesService.updateAvatar(req.user.id, file.filename);
   }
 
   @Delete('/avatar')
   async removeAvatar(@Req() req) {
-    return this.profilesService.removeAvatar(req.user.uuid);
+    return this.profilesService.removeAvatar(req.user.id);
   }
 }
 

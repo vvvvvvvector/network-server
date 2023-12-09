@@ -20,7 +20,6 @@ import { SendMessageDto } from './dtos/send-message.dto';
 type User = {
   id: number;
   username: string;
-  uuid: string;
 };
 
 @WebSocketGateway(5120, {
@@ -94,13 +93,8 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('is-friend-online')
-  isFriendOnline(
-    @MessageBody() username: string,
-    @ConnectedSocket() client: Socket,
-  ) {
-    const friendSocketId = this.getSocketIdByUsername(username);
-
-    return !!friendSocketId;
+  isFriendOnline(@MessageBody() username: string) {
+    return !!this.getSocketIdByUsername(username);
   }
 
   @SubscribeMessage('send-message')

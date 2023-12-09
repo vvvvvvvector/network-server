@@ -17,8 +17,9 @@ export class ProfilesService {
     @InjectRepository(Profile) private profilesRepository: Repository<Profile>,
   ) {}
 
-  async updateBio(uuid: string, bio: string) {
-    const profile = await this.getProfileByUuid(uuid);
+  // +++
+  async updateBio(id: number, bio: string) {
+    const profile = await this.getProfileByUserId(id);
 
     if (!bio) profile.bio = null;
     else profile.bio = bio;
@@ -26,8 +27,9 @@ export class ProfilesService {
     return this.profilesRepository.save(profile);
   }
 
-  async removeAvatar(uuid: string) {
-    const profile = await this.getProfileByUuid(uuid);
+  // +++
+  async removeAvatar(id: number) {
+    const profile = await this.getProfileByUserId(id);
 
     unlink(
       join(__dirname, `../../uploads/avatars/${profile.avatar.name}`),
@@ -46,8 +48,9 @@ export class ProfilesService {
     return this.profilesRepository.save(profile);
   }
 
-  async saveAvatar(uuid: string, filename: string) {
-    const profile = await this.getProfileByUuid(uuid);
+  // +++
+  async saveAvatar(id: number, filename: string) {
+    const profile = await this.getProfileByUserId(id);
 
     profile.avatar.name = filename;
     profile.avatar.likes = 0;
@@ -55,8 +58,9 @@ export class ProfilesService {
     return this.profilesRepository.save(profile);
   }
 
-  async updateAvatar(uuid: string, filename: string) {
-    const profile = await this.getProfileByUuid(uuid);
+  // +++
+  async updateAvatar(id: number, filename: string) {
+    const profile = await this.getProfileByUserId(id);
 
     unlink(
       join(__dirname, `../../uploads/avatars/${profile.avatar.name}`),
@@ -76,21 +80,14 @@ export class ProfilesService {
   }
 
   async activateProfile(uuid: string) {
-    const profile = await this.getProfileByUuid(uuid);
-
-    profile.isActivated = true;
-
-    return this.profilesRepository.save(profile);
-  }
-
-  private async getProfileByUuid(uuid: string) {
     try {
       const profile = await this.profilesRepository.findOneOrFail({
         where: { uuid },
-        relations: ['avatar'],
       });
 
-      return profile;
+      profile.isActivated = true;
+
+      return this.profilesRepository.save(profile);
     } catch (error) {
       throw new BadRequestException('Profile not found.');
     }
@@ -100,7 +97,13 @@ export class ProfilesService {
     try {
       const profile = await this.profilesRepository.findOneOrFail({
         where: { user: { id } },
-        relations: ['user'],
+        relations: ['user', 'avatar'],
+        select: {
+          user: {
+            id: true,
+            username: true,
+          },
+        },
       });
 
       return profile;

@@ -16,8 +16,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   // return from the validate method will be saved in the request (@Req | @Request) object
   async validate(payload: any) {
-    const { id, username, uuid } = payload;
+    const { id, username } = payload;
 
-    return { id, username, uuid }; // this object will be saved in the @Req() req.user
+    return { id, username }; // this object will be saved in the @Req() req.user
   }
 }

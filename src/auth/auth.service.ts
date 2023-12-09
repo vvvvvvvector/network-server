@@ -22,7 +22,7 @@ export class AuthService {
   async validateUser(
     username: string,
     password: string,
-  ): Promise<{ id: number; username: string; uuid: string }> {
+  ): Promise<{ id: number; username: string }> {
     const user = await this.usersService.findUserByUsername(username);
 
     if (!user) {
@@ -32,7 +32,7 @@ export class AuthService {
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (isPasswordValid) {
-      return { id: user.id, username: user.username, uuid: user.profile.uuid };
+      return { id: user.id, username: user.username };
     }
 
     return null;
