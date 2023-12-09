@@ -16,7 +16,6 @@ import { ChatsService } from 'src/chats/chats.service';
 import { UsersService } from 'src/users/users.service';
 
 import { SendMessageDto } from './dtos/send-message.dto';
-import { SendTypingInfoDto } from './dtos/send-typing-info.dto';
 
 type User = {
   id: number;
@@ -64,6 +63,11 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       this.connections.set(client.id, user);
 
+      client.broadcast.emit(
+        'user-connected',
+        this.connections.get(client.id).username,
+      );
+
       console.log(
         `1) New connection: ${client.id}\n2) Connection data: ${user.id} ${user.username}`,
       );
@@ -81,7 +85,22 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.connections.get(client.id).id,
     );
 
+    client.broadcast.emit(
+      'user-disconnected',
+      this.connections.get(client.id).username,
+    );
+
     this.connections.delete(client.id);
+  }
+
+  @SubscribeMessage('is-friend-online')
+  isFriendOnline(
+    @MessageBody() username: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const friendSocketId = this.getSocketIdByUsername(username);
+
+    return !!friendSocketId;
   }
 
   @SubscribeMessage('send-message')
@@ -119,25 +138,5 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         username: senderUsername,
       },
     };
-  }
-
-  @SubscribeMessage('send-typing-info')
-  sendTypingInfo(
-    @MessageBody() data: SendTypingInfoDto,
-    @ConnectedSocket() client: Socket,
-  ) {
-    const typingInfoReceiverSocketId = this.getSocketIdByUsername(
-      data.receiver,
-    ); // if user is online socketId will be returned, else undefined
-
-    if (typingInfoReceiverSocketId) {
-      client.to(typingInfoReceiverSocketId).emit('receive-typing-info', {
-        typing: true,
-      });
-
-      // client.to(typingInfoReceiverSocketId).emit('receive-typing-info', {
-      //   typing: false,
-      // });
-    }
   }
 }
