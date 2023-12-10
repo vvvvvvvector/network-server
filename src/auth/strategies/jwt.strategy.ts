@@ -3,6 +3,8 @@ import { PassportStrategy } from '@nestjs/passport';
 
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
+import { UserTokenPayload } from '../auth.service';
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
@@ -15,7 +17,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   // return from the validate method will be saved in the request (@Req | @Request) object
-  async validate(payload: any) {
+  async validate(payload: any): Promise<UserTokenPayload> {
     const { id, username } = payload;
 
     return { id, username }; // this object will be saved in the @Req() req.user

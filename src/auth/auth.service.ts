@@ -11,6 +11,11 @@ import { SignUpUserDto } from 'src/users/dtos/auth.dto';
 import { UsersService } from 'src/users/users.service';
 import { ProfilesService } from 'src/profiles/profiles.service';
 
+export type UserTokenPayload = {
+  id: number;
+  username: string;
+};
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -22,7 +27,7 @@ export class AuthService {
   async validateUser(
     username: string,
     password: string,
-  ): Promise<{ id: number; username: string }> {
+  ): Promise<UserTokenPayload> {
     const user = await this.usersService.findUserByUsername(username);
 
     if (!user) {
@@ -38,7 +43,7 @@ export class AuthService {
     return null;
   }
 
-  async signIn(payload: { id: number; username: string }) {
+  async signIn(payload: UserTokenPayload) {
     const activated = await this.usersService.isProfileActivated(payload.id);
 
     if (!activated) {
