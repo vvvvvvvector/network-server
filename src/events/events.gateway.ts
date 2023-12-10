@@ -14,10 +14,10 @@ import { Socket, Server } from 'socket.io';
 import { MessagesService } from 'src/messages/messages.service';
 import { ChatsService } from 'src/chats/chats.service';
 import { UsersService } from 'src/users/users.service';
-import type { UserTokenPayload } from 'src/auth/auth.service';
 
 import { SendMessageDto } from './dtos/send-message.dto';
 
+import type { UserTokenPayload } from 'src/auth/auth.service';
 type SocketId = string;
 
 @WebSocketGateway(5120, {
@@ -47,7 +47,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         client.handshake.auth.token as string | undefined,
       ); // to do: handle error if token is not provided or expired?
 
-      // if user is already connected
+      // if the user is already connected
       if (!!this.getSocketIdByUsername(user.username)) {
         client.disconnect();
 
@@ -57,7 +57,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.activeConnections.set(client.id, user);
 
       client.broadcast.emit(
-        'user-connected',
+        'network-user-online',
         this.activeConnections.get(client.id).username,
       );
 
@@ -79,19 +79,19 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
 
     client.broadcast.emit(
-      'user-disconnected',
+      'network-user-offline',
       this.activeConnections.get(client.id).username,
     );
 
     this.activeConnections.delete(client.id);
   }
 
-  @SubscribeMessage('is-friend-online')
+  @SubscribeMessage('is-friend-in-chat-online')
   isFriendOnline(@MessageBody() username: string) {
     return !!this.getSocketIdByUsername(username);
   }
 
-  @SubscribeMessage('send-message')
+  @SubscribeMessage('send-private-message')
   async sendMessage(
     @MessageBody() data: SendMessageDto,
     @ConnectedSocket() client: Socket,
@@ -112,7 +112,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       message.createdAt,
     );
 
-    client.to(messageReceiverSocketId).emit('receive-message', {
+    client.to(messageReceiverSocketId).emit('receive-private-message', {
       ...message,
       sender: {
         username: senderUsername,
