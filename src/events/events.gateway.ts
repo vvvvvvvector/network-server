@@ -91,6 +91,32 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return !!this.getSocketIdByUsername(username);
   }
 
+  @SubscribeMessage('typing')
+  userTyping(
+    @MessageBody()
+    data: {
+      to: string;
+    },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const receiverSocketId = this.getSocketIdByUsername(data.to);
+
+    client.to(receiverSocketId).emit('typing');
+  }
+
+  @SubscribeMessage('typing-stop')
+  userStopTyping(
+    @MessageBody()
+    data: {
+      to: string;
+    },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const receiverSocketId = this.getSocketIdByUsername(data.to);
+
+    client.to(receiverSocketId).emit('typing-stop');
+  }
+
   @SubscribeMessage('send-private-message')
   async sendMessage(
     @MessageBody() data: SendMessageDto,
