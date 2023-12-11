@@ -47,23 +47,12 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         client.handshake.auth.token as string | undefined,
       ); // to do: handle error if token is not provided or expired?
 
-      // if the user is already connected
-      if (!!this.getSocketIdByUsername(user.username)) {
-        client.disconnect();
+      client.broadcast.emit('network-user-online', user.username);
 
-        return;
-      }
-
+      client.join(user.username);
       this.activeConnections.set(client.id, user);
 
-      client.broadcast.emit(
-        'network-user-online',
-        this.activeConnections.get(client.id).username,
-      );
-
-      console.log(
-        `1) New connection: ${client.id}\n2) Connection data: ${user.id} ${user.username}`,
-      );
+      console.log(`A client has connected: ${user.username}`);
     } catch (error) {
       console.log('token is not provided or expired. disconnecting...');
 
@@ -72,18 +61,26 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   async handleDisconnect(client: Socket) {
-    console.log(`A client has disconnected: ${client.id}`);
+    try {
+      const user = this.jwtService.verify<UserTokenPayload>(
+        client.handshake.auth.token as string | undefined,
+      ); // to do: handle error if token is not provided or expired?
 
-    await this.usersService.updateLastSeenDateAndTime(
-      this.activeConnections.get(client.id).id,
-    );
+      client.broadcast.emit('network-user-offline', user.username);
 
-    client.broadcast.emit(
-      'network-user-offline',
-      this.activeConnections.get(client.id).username,
-    );
+      await this.usersService.updateLastSeenDateAndTime(
+        this.activeConnections.get(client.id).id,
+      );
 
-    this.activeConnections.delete(client.id);
+      client.leave(user.username);
+      this.activeConnections.delete(client.id);
+
+      console.log(`A client has disconnected: ${user.username}`);
+    } catch (error) {
+      console.log('token is not provided or expired. disconnecting...');
+
+      client.disconnect();
+    }
   }
 
   @SubscribeMessage('is-friend-in-chat-online')
@@ -99,9 +96,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     },
     @ConnectedSocket() client: Socket,
   ) {
-    const receiverSocketId = this.getSocketIdByUsername(data.to);
-
-    client.to(receiverSocketId).emit('typing');
+    client.to(data.to).emit('typing');
   }
 
   @SubscribeMessage('typing-stop')
@@ -112,9 +107,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     },
     @ConnectedSocket() client: Socket,
   ) {
-    const receiverSocketId = this.getSocketIdByUsername(data.to);
-
-    client.to(receiverSocketId).emit('typing-stop');
+    client.to(data.to).emit('typing-stop');
   }
 
   @SubscribeMessage('send-private-message')
@@ -122,8 +115,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: SendMessageDto,
     @ConnectedSocket() client: Socket,
   ) {
-    const messageReceiverSocketId = this.getSocketIdByUsername(data.receiver); // if user is online socketId will be returned, else undefined
-
     const senderUsername = this.activeConnections.get(client.id).username;
 
     const message = await this.messagesService.createMessage(
@@ -138,7 +129,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       message.createdAt,
     );
 
-    client.to(messageReceiverSocketId).emit('receive-private-message', {
+    client.to(data.receiver).emit('receive-private-message', {
       ...message,
       sender: {
         username: senderUsername,
