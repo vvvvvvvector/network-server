@@ -83,7 +83,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @SubscribeMessage('is-friend-in-chat-online')
+  @SubscribeMessage('is-friend-online')
   isFriendOnline(@MessageBody() username: string) {
     return !!this.getSocketIdByUsername(username);
   }
