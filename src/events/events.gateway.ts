@@ -88,7 +88,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return friends.reduce(
       (accumulator, currentValue) =>
         Object.assign(accumulator, {
-          [currentValue]: !!this.getSocketIdByUsername(currentValue),
+          [currentValue]: this.getSocketIdByUsername(currentValue)
+            ? 'online'
+            : 'offline',
         }),
       {},
     );
