@@ -83,6 +83,17 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  @SubscribeMessage('which-friends-in-messenger-online')
+  isFriendsInMessengerOnline(@MessageBody() friends: string[]) {
+    return friends.reduce(
+      (accumulator, currentValue) =>
+        Object.assign(accumulator, {
+          [currentValue]: !!this.getSocketIdByUsername(currentValue),
+        }),
+      {},
+    );
+  }
+
   @SubscribeMessage('is-friend-online')
   isFriendOnline(@MessageBody() username: string) {
     return !!this.getSocketIdByUsername(username);
