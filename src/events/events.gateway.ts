@@ -83,7 +83,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @SubscribeMessage('which-friends-in-messenger-online')
+  @SubscribeMessage('which-friends-online')
   isFriendsInMessengerOnline(@MessageBody() friends: string[]) {
     return friends.reduce(
       (accumulator, currentValue) =>
