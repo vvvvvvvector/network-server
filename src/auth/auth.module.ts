@@ -10,7 +10,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { UsersModule } from 'src/users/users.module';
 import { ProfilesModule } from 'src/profiles/profiles.module';
 
-import { EncapsulatedJwtModule } from 'src/modules/jwt.module';
+import { EncapsulatedJwtModule } from 'src/auth/modules/jwt.module';
 
 @Module({
   imports: [UsersModule, PassportModule, ProfilesModule, EncapsulatedJwtModule],

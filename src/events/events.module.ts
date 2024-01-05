@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { EventsGateway } from './events.gateway';
 
-import { EncapsulatedJwtModule } from 'src/modules/jwt.module';
+import { EncapsulatedJwtModule } from 'src/auth/modules/jwt.module';
 
 import { MessagesModule } from 'src/messages/messages.module';
 import { ChatsModule } from 'src/chats/chats.module';
