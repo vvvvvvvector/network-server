@@ -11,7 +11,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  root(): string {
+  root() {
     return 'Social Network Server is running...';
   }
 }
