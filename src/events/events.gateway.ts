@@ -2,14 +2,11 @@ import {
   WebSocketGateway,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  WebSocketServer,
   SubscribeMessage,
   MessageBody,
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { JwtService } from '@nestjs/jwt';
-
-import { Socket, Server } from 'socket.io';
 
 import { MessagesService } from 'src/messages/messages.service';
 import { ChatsService } from 'src/chats/chats.service';
@@ -36,12 +33,12 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private activeConnections = new Map<SocketId, UserTokenPayload>();
 
   private getSocketIdByUsername(username: string) {
-    for (let [socketId, user] of this.activeConnections.entries()) {
+    for (const [socketId, user] of this.activeConnections.entries()) {
       if (user.username === username) return socketId;
     }
   }
 
-  handleConnection(client: Socket) {
+  handleConnection(client) {
     try {
       const user = this.jwtService.verify<UserTokenPayload>(
         client.handshake.auth.token as string | undefined,
@@ -60,7 +57,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  async handleDisconnect(client: Socket) {
+  async handleDisconnect(client) {
     try {
       const user = this.jwtService.verify<UserTokenPayload>(
         client.handshake.auth.token as string | undefined,
@@ -107,7 +104,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     data: {
       to: string;
     },
-    @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client,
   ) {
     client.to(data.to).emit('typing');
   }
@@ -118,7 +115,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     data: {
       to: string;
     },
-    @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client,
   ) {
     client.to(data.to).emit('typing-stop');
   }
@@ -126,7 +123,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('send-private-message')
   async sendMessage(
     @MessageBody() data: SendMessageDto,
-    @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client,
   ) {
     const senderUsername = this.activeConnections.get(client.id).username;
 

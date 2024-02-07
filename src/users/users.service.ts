@@ -62,6 +62,7 @@ export class UsersService {
 
   async getUserAvatarAndUsername(id: number) {
     try {
+      // eslint-disable-next-line
       const { password, ...user } = await this.usersRepository.findOneOrFail({
         where: { id },
         relations: ['profile', 'profile.avatar'],

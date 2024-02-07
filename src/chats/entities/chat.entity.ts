@@ -6,7 +6,6 @@ import {
   UpdateDateColumn,
   Column,
   JoinColumn,
-  CreateDateColumn,
 } from 'typeorm';
 
 import { TABLES } from 'src/utils/constants';
