@@ -33,7 +33,9 @@ export class UsersService {
         where: { id },
       });
 
-      return username;
+      return {
+        username,
+      };
     } catch (error) {
       throw new BadRequestException('User not found.');
     }
