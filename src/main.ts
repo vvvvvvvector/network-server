@@ -32,7 +32,7 @@ async function bootstrap() {
     },
   });
 
-  const port = +app.get(ConfigService).get('APP_PORT') || 5173;
+  const port = +app.get(ConfigService).get('PORT') || 5173;
 
   await app.listen(port);
 }
